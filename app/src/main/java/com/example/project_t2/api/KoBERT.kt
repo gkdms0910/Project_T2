@@ -1,7 +1,7 @@
 package com.example.project_t2.api
 
-import com.example.project_t2.models.KoBERTRequestBody
-import com.example.project_t2.models.KoBERTResponse
+import com.example.project_t2.models.KoBERT.KoBERTRequestBody
+import com.example.project_t2.models.KoBERT.KoBERTResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
