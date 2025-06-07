@@ -1,4 +1,4 @@
-package com.example.project_t2.models
+package com.example.project_t2.models.KoBERT
 
 import kotlinx.serialization.Serializable
 
