@@ -1,5 +1,6 @@
 package com.example.project_t2.api
 
+import android.net.http.HttpResponseCache.install
 import com.example.project_t2.models.KoBERT.KoBERTRequestBody
 import com.example.project_t2.models.KoBERT.KoBERTResponse
 import io.ktor.client.HttpClient
