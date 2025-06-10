@@ -23,3 +23,30 @@ fun sunImage(): ImageSpec {
         modifier = Modifier
     )
 }
+
+@Composable
+fun titleText(): ImageSpec {
+    return ImageSpec(
+        painter = painterResource(id = R.drawable.title),
+        contentScale = ContentScale.FillWidth,
+        modifier = Modifier
+    )
+}
+
+@Composable
+fun paperTexture(): ImageSpec {
+    return ImageSpec(
+        painter = painterResource(id = R.drawable.paper_texture),
+        contentScale = ContentScale.FillWidth,
+        modifier = Modifier
+    )
+}
+
+@Composable
+fun paperTexture2(): ImageSpec {
+    return ImageSpec(
+        painter = painterResource(id = R.drawable.paper_texture2),
+        contentScale = ContentScale.FillWidth,
+        modifier = Modifier
+    )
+}
