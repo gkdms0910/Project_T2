@@ -68,16 +68,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.androidx.room.common)
-    implementation(libs.androidx.androidx.room.gradle.plugin)
+    //implementation(libs.androidx.androidx.room.gradle.plugin)
     implementation(libs.androidx.room.runtime.android)
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation("io.ktor:ktor-client-android:2.3.4")
     implementation("io.ktor:ktor-client-okhttp:2.3.4")
