@@ -1,4 +1,4 @@
-package com.example.Project_T2.ui
+package com.example.project_t2.data
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.testapi.data.WeatherViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

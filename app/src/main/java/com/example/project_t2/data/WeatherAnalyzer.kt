@@ -1,4 +1,4 @@
-package com.example.Project_T2.data
+package com.example.project_t2.data
 data class WeatherData(val sky: Int?, val rn1: Double?, val t1h: Double?)
 
 object WeatherAnalyzer {
