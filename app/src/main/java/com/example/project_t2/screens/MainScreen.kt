@@ -4,43 +4,34 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.project_t2.R
 import com.example.project_t2.graphics.RenderImage
 
 import com.example.project_t2.graphics.cloudImage
-import com.example.project_t2.graphics.sunImage
 import com.example.project_t2.graphics.titleText
-import com.example.project_t2.ui.theme.MainFont
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, navController: NavController) {
     val cloud = cloudImage()
-    val sun = sunImage()
     val title = titleText()
 
     Box(
         modifier = modifier
             .fillMaxSize()
+            // MainScreen.kt의 clickable 수정자 내부
             .clickable {
-                navController.navigate("diary")
+                navController.navigate("diary/-1") // "diary" -> "diary/-1"로 변경
             }
     ) {
         // 배경 이미지
@@ -91,5 +82,4 @@ fun MainScreen(modifier: Modifier = Modifier, navController: NavController) {
 @Composable
 private fun PreviewMainScreen() {
     MainScreen(modifier=Modifier,navController = rememberNavController())
-
 }
