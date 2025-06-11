@@ -8,7 +8,7 @@ class DiaryViewModelFactory(private val application: Application) : ViewModelPro
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(DiaryViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            // DiaryRepository를 생성하고, 이를 DiaryViewModel 생성자에 전달합니다.
+
             return DiaryViewModel(DiaryRepository(application)) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

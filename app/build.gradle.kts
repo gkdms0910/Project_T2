@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.google.ksp)
 }
 
 android {
@@ -71,7 +72,7 @@ dependencies {
     implementation(libs.androidx.room.common)
     //implementation(libs.androidx.androidx.room.gradle.plugin)
     implementation(libs.androidx.room.runtime.android)
-
+    ksp(libs.androidx.room.compiler)
 
     implementation("io.ktor:ktor-client-android:2.3.4")
     implementation("io.ktor:ktor-client-okhttp:2.3.4")

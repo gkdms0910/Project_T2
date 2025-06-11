@@ -29,9 +29,9 @@ fun MainScreen(modifier: Modifier = Modifier, navController: NavController) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            // MainScreen.kt의 clickable 수정자 내부
+
             .clickable {
-                navController.navigate("diary/-1") // "diary" -> "diary/-1"로 변경
+                navController.navigate("diary/-1")
             }
     ) {
         // 배경 이미지

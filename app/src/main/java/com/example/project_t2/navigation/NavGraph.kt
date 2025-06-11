@@ -9,13 +9,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.project_t2.screens.DiaryScreen
 import com.example.project_t2.screens.MainScreen
+import com.example.project_t2.screens.DiaryListScreen
 
 @Composable
-fun AppNavGraph(navController: NavHostController) {
+fun AppNavGraph(
+    navController: NavHostController,
+    openDrawer: () -> Unit
+) {
     NavHost(navController = navController, startDestination = "main") {
         composable("main") { MainScreen(Modifier, navController) }
 
-        // diaryId를 인자로 받도록 수정, 기본값 -1은 '새 일기'를 의미
         composable(
             route = "diary/{diaryId}",
             arguments = listOf(navArgument("diaryId") {
@@ -24,7 +27,16 @@ fun AppNavGraph(navController: NavHostController) {
             })
         ) { backStackEntry ->
             val diaryId = backStackEntry.arguments?.getInt("diaryId") ?: -1
-            DiaryScreen(diaryId = diaryId, navController = navController)
+            DiaryScreen(
+                diaryId = diaryId,
+                navController = navController,
+                openDrawer = openDrawer
+            )
+        }
+
+
+        composable("diaryList") {
+            DiaryListScreen(navController = navController)
         }
     }
 }

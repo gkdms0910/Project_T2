@@ -11,4 +11,5 @@ class DiaryRepository(context: Context) {
     suspend fun getDiary(id: Int) = diaryDao.getDiary(id)
     suspend fun insertDiary(diary: DiaryEntity) = diaryDao.insertDiary(diary)
     suspend fun updateDiary(diary: DiaryEntity) = diaryDao.updateDiary(diary)
+    suspend fun getAllDiaries(): List<DiaryEntity> = diaryDao.getAllDiary()
 }

@@ -40,6 +40,7 @@ fun DiaryScreen(
         factory = DiaryViewModelFactory(LocalContext.current.applicationContext as Application)
     ),
     weatherViewModel: WeatherViewModel = viewModel()
+    ,openDrawer: () -> Unit // 파라미터 추가
 ) {
     // UI 상태 관리 변수
     var title by remember { mutableStateOf("") }
@@ -52,7 +53,6 @@ fun DiaryScreen(
     // 날씨 정보 상태
     val weatherState by weatherViewModel.weatherData.collectAsState()
 
-    // LaunchedEffect: diaryId가 변경되거나 화면이 처음 로드될 때 실행
     LaunchedEffect(key1 = diaryId) {
         if (diaryId != -1) {
             // 기존 일기 수정
@@ -67,16 +67,16 @@ fun DiaryScreen(
         }
         val baseDate = current.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
 
-        // nx, ny는 현재 위치 기반으로 수정해야 하지만, 여기서는 서울시청 좌표로 유지
+        // 건대 기준
         weatherViewModel.loadWeather(
             baseDate = baseDate,
             baseTime = baseTime,
-            nx = 60,
+            nx = 27,
             ny = 127
         )
     }
 
-    // DB에서 일기 정보를 성공적으로 불러왔을 때, UI 상태를 업데이트
+    // UI 상태 업데이트
     LaunchedEffect(key1 = savedDiary) {
         savedDiary?.let {
             title = it.title
@@ -106,8 +106,10 @@ fun DiaryScreen(
                     painter = painterResource(id = R.drawable.outline_menu_24),
                     contentDescription = "Menu",
                     modifier = Modifier.size(50.dp)
+                        .size(50.dp)
+                        .clickable { openDrawer() }
                 )
-                // 저장(체크) 버튼
+                // 저장 버튼
                 Image(
                     painter = painterResource(id = R.drawable.outline_check_circle_24),
                     contentDescription = "Save",
@@ -148,16 +150,15 @@ fun DiaryScreen(
                 )
             }
 
-            // TODO: 날씨, 감정 선택 UI 영역 (이전 답변 참고하여 구현)
 
             // 일기 작성 영역 (제목 + 내용)
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f) // 남은 공간을 모두 차지하도록
+                    .weight(1f)
                     .padding(horizontal = 24.dp, vertical = 16.dp)
             ) {
-                // 조건 1: 제목과 내용이 함께 스크롤되도록 LazyColumn 안에 배치
+
                 item {
                     // 제목 입력 필드
                     BasicTextField(
