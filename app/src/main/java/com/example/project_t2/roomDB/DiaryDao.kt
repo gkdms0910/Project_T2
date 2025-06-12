@@ -16,5 +16,10 @@ interface DiaryDao {
     @Query("SELECT * FROM diaryTable")
     suspend fun getAllDiary(): List<DiaryEntity>
 
+    @Query("SELECT * FROM diaryTable WHERE title LIKE '%' || :keyword || '%' OR content LIKE '%' || :keyword || '%' ORDER BY time DESC")
+    suspend fun searchDiaryNewestFirst(keyword: String): List<DiaryEntity>
+
+    @Query("SELECT * FROM diaryTable WHERE title LIKE '%' || :keyword || '%' OR content LIKE '%' || :keyword || '%' ORDER BY time ASC")
+    suspend fun searchDiaryOldestFirst(keyword: String): List<DiaryEntity>
     //fun getAllDiary():Flow<List<DiaryEntity>>
 }
