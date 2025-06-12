@@ -1,37 +1,59 @@
 package com.example.project_t2.screens
 
+import android.app.Application
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.project_t2.R
+import com.example.project_t2.data.DiaryViewModel
+import com.example.project_t2.data.DiaryViewModelFactory
 import com.example.project_t2.graphics.RenderImage
-
 import com.example.project_t2.graphics.cloudImage
 import com.example.project_t2.graphics.titleText
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, navController: NavController) {
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    diaryViewModel: DiaryViewModel = viewModel(
+        factory = DiaryViewModelFactory(LocalContext.current.applicationContext as Application)
+    )
+) {
     val cloud = cloudImage()
     val title = titleText()
+
+    val navigateToDiaryId by diaryViewModel.navigateToDiary.collectAsState()
+
+    LaunchedEffect(navigateToDiaryId) {
+        navigateToDiaryId?.let { id ->
+            navController.navigate("diary/$id")
+            diaryViewModel.onNavigationComplete()
+        }
+    }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-
             .clickable {
-                navController.navigate("diary/-1")
+
+                diaryViewModel.findDiaryForToday()
             }
     ) {
         // 배경 이미지
@@ -81,5 +103,5 @@ fun MainScreen(modifier: Modifier = Modifier, navController: NavController) {
 @Preview
 @Composable
 private fun PreviewMainScreen() {
-    MainScreen(modifier=Modifier,navController = rememberNavController())
+    MainScreen(modifier = Modifier, navController = rememberNavController())
 }
