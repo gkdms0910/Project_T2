@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.Project_T2.data.WeatherViewModel
-import com.example.Project_T2.data.Weather
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -40,7 +39,7 @@ fun WeatherScreen(viewModel: WeatherViewModel = viewModel<WeatherViewModel>()) {
     }
 
     val weatherItems = weatherState?.response?.body?.items?.item
-        ?.filter { it.category in listOf("RN1", "SKY", "T1H") }
+        ?.filter { it.category in listOf("RN1", "SKY", "T1H","UUU","VVV","REH","PTY","LGT","WSD") }
         ?.groupBy { it.category }
         ?.mapValues { entry ->
             entry.value.minByOrNull { item ->
@@ -65,6 +64,12 @@ fun WeatherScreen(viewModel: WeatherViewModel = viewModel<WeatherViewModel>()) {
         val skyValue = weatherItems?.find { it.category == "SKY" }?.fcstValue?.toIntOrNull()
         val rn1Value = weatherItems?.find { it.category == "RN1" }?.fcstValue?.toDoubleOrNull()
         val t1hValue = weatherItems?.find { it.category == "T1H" }?.fcstValue?.toDoubleOrNull()
+        val lgtValue = weatherItems?.find { it.category == "LGT" }?.fcstValue?.toDoubleOrNull()
+        val ptyValue = weatherItems?.find { it.category == "PTY" }?.fcstValue?.toDoubleOrNull()
+        val rehValue = weatherItems?.find { it.category == "REH" }?.fcstValue?.toDoubleOrNull()
+        val uuuValue = weatherItems?.find { it.category == "UUU" }?.fcstValue?.toDoubleOrNull()
+        val vvvValue = weatherItems?.find { it.category == "VVV" }?.fcstValue?.toDoubleOrNull()
+        val wsdValue = weatherItems?.find { it.category == "WSD" }?.fcstValue?.toDoubleOrNull()
 
 // 날씨 설명 로직
         val weatherDescription = when {
