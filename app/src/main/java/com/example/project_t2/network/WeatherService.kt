@@ -1,9 +1,10 @@
-package com.example.Project_T2.network
+package com.example.project_T2.network
 
-import com.example.testapi.data.Weather
+import com.example.Project_T2.data.Weather
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
+
 
 // 배포시에는 안전하게 보완 적용 필요
 // 공공 데이터 포탈에서 발급 받은 자신만의 API키를 입력해 주세요.

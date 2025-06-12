@@ -1,5 +1,4 @@
-package com.example.project_t2.network
-import com.example.testapi.network.WeatherService
+import com.example.project_T2.network.WeatherService
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

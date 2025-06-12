@@ -16,13 +16,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.testapi.data.WeatherViewModel
+import com.example.Project_T2.data.WeatherViewModel
+import com.example.Project_T2.data.Weather
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun WeatherScreen(viewModel: WeatherViewModel = viewModel()) {
+fun WeatherScreen(viewModel: WeatherViewModel = viewModel<WeatherViewModel>()) {
     val weatherState by viewModel.weatherData.collectAsState()
     val current = LocalDateTime.now()
     val baseDate = current.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
