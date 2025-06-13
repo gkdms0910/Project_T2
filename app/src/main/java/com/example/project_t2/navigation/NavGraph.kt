@@ -11,21 +11,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.project_t2.data.DiaryViewModelFactory
+import com.example.project_t2.screens.DiaryListScreen
 import com.example.project_t2.screens.DiaryScreen
 import com.example.project_t2.screens.MainScreen
-import com.example.project_t2.screens.DiaryListScreen
 
 @Composable
 fun AppNavGraph(
-    navController: NavHostController,
-    openDrawer: () -> Unit
+    navController: NavHostController
 ) {
     NavHost(navController = navController, startDestination = "main") {
-        composable("main") { MainScreen(
-            Modifier,
-            navController,
-            viewModel(factory = DiaryViewModelFactory(LocalContext.current.applicationContext as Application))
-        ) }
+        composable("main") {
+            MainScreen(
+                Modifier,
+                navController,
+                viewModel(factory = DiaryViewModelFactory(LocalContext.current.applicationContext as Application))
+            )
+        }
 
         composable(
             route = "diary/{diaryId}",
@@ -37,14 +38,14 @@ fun AppNavGraph(
             val diaryId = backStackEntry.arguments?.getInt("diaryId") ?: -1
             DiaryScreen(
                 diaryId = diaryId,
-                navController = navController,
-                openDrawer = openDrawer
+                navController = navController
             )
         }
 
-
         composable("diaryList") {
-            DiaryListScreen(navController = navController)
+            DiaryListScreen(
+                navController = navController
+            )
         }
     }
 }

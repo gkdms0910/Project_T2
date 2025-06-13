@@ -27,6 +27,7 @@ import com.example.project_t2.data.DiaryViewModelFactory
 import com.example.project_t2.graphics.RenderImage
 import com.example.project_t2.graphics.cloudImage
 import com.example.project_t2.graphics.titleText
+import com.example.project_t2.ui.theme.Project_T2Theme
 
 @Composable
 fun MainScreen(
@@ -36,9 +37,6 @@ fun MainScreen(
         factory = DiaryViewModelFactory(LocalContext.current.applicationContext as Application)
     )
 ) {
-    val cloud = cloudImage()
-    val title = titleText()
-
     val navigateToDiaryId by diaryViewModel.navigateToDiary.collectAsState()
 
     LaunchedEffect(navigateToDiaryId) {
@@ -48,23 +46,31 @@ fun MainScreen(
         }
     }
 
+    MainScreenContent(
+        modifier = modifier,
+        onClick = { diaryViewModel.findDiaryForToday() }
+    )
+}
+
+@Composable
+private fun MainScreenContent(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    val cloud = cloudImage()
+    val title = titleText()
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .clickable {
-
-                diaryViewModel.findDiaryForToday()
-            }
+            .clickable(onClick = onClick)
     ) {
-        // 배경 이미지
         Image(
             painter = painterResource(id = R.drawable.paper_texture),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
-
-        // 콘텐츠
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -77,20 +83,17 @@ fun MainScreen(
                     )
                 )
         ) {
-            // 타이틀 이미지
             RenderImage(
                 title, modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .align(Alignment.TopCenter)
                     .padding(top = 200.dp)
             )
-            // 구름1
             RenderImage(
                 cloud, modifier = Modifier
                     .fillMaxWidth(0.4f)
                     .offset(x = 10.dp, y = 300.dp)
             )
-            //구름 2
             RenderImage(
                 cloud, modifier = Modifier
                     .fillMaxWidth(0.7f)
@@ -100,8 +103,10 @@ fun MainScreen(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun PreviewMainScreen() {
-    MainScreen(modifier = Modifier, navController = rememberNavController())
+    Project_T2Theme {
+        MainScreenContent(onClick = {})
+    }
 }
