@@ -47,5 +47,6 @@ fun AppNavGraph(
                 navController = navController
             )
         }
+
     }
 }

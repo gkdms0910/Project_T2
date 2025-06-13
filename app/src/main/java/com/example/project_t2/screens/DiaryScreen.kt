@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -14,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -36,6 +38,7 @@ import com.example.project_t2.data.WeatherViewModel
 import com.example.project_t2.graphics.Emotion
 import com.example.project_t2.models.Weathers
 import com.example.project_t2.roomDB.DiaryEntity
+import com.example.project_t2.ui.theme.MainFont
 import com.example.project_t2.ui.theme.Project_T2Theme
 import kotlinx.coroutines.delay
 import java.time.LocalDate
@@ -169,13 +172,13 @@ private fun DiaryScreenContent(
         Image(painter = painterResource(id = R.drawable.paper_texture), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
 
         Column(modifier = Modifier.fillMaxSize()) {
+            // 상단 바
             Row(
                 modifier = Modifier.fillMaxWidth().height(56.dp).padding(vertical = 8.dp, horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 MenuDropdown(navController = navController)
-
                 if (isEditableDay) {
                     if (isInEditMode) {
                         Image(painter = painterResource(id = R.drawable.outline_check_circle_24), contentDescription = "Save", modifier = Modifier.size(50.dp).clickable(onClick = onSaveClick))
@@ -186,47 +189,76 @@ private fun DiaryScreenContent(
                     }
                 }
             }
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
+
+            // [수정] 날씨와 감정 선택 UI를 하나의 Card 안에 배치
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.5f)),
+                elevation = CardDefaults.cardElevation(0.dp)
             ) {
-                Text(text = "오늘의 날씨: ${currentWeathers.name}  ${currentTemperature}", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Emotion.entries.forEach { emotion ->
-                    val scale by animateFloatAsState(targetValue = if (emotion == selectedEmotion) 1.2f else 1.0f, label = "")
-                    Text(
-                        text = emotion.emoji,
-                        fontSize = 32.sp,
-                        modifier = Modifier.scale(scale).clickable(enabled = isInEditMode) { onEmotionChange(emotion) }.padding(4.dp)
-                    )
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(text = "오늘의 날씨: ${currentWeathers.name}  ${currentTemperature}", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                    }
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Emotion.entries.forEach { emotion ->
+                            val isSelected = emotion == selectedEmotion
+                            val scale by animateFloatAsState(targetValue = if (isSelected) 1.2f else 1.0f, label = "")
+                            Box(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent)
+                                    .clickable(enabled = isInEditMode) { onEmotionChange(emotion) }
+                            ) {
+                                Text(
+                                    text = emotion.emoji,
+                                    fontSize = 32.sp,
+                                    modifier = Modifier.scale(scale).padding(8.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
+
+            // 일기 작성 영역
             LazyColumn(
                 modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = 24.dp, vertical = 16.dp)
             ) {
                 item {
-                    BasicTextField(
-                        value = title,
-                        onValueChange = onTitleChange,
-                        modifier = Modifier.fillMaxWidth(),
-                        textStyle = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Default),
-                        cursorBrush = SolidColor(Color.Black),
-                        readOnly = !isInEditMode,
-                        decorationBox = { innerTextField ->
-                            if (title.isEmpty()) {
-                                Text("제목", style = TextStyle(color = Color.Gray, fontSize = 22.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Default))
+                    // 제목 입력
+                    Column {
+                        BasicTextField(
+                            value = title,
+                            onValueChange = onTitleChange,
+                            modifier = Modifier.fillMaxWidth(),
+                            textStyle = TextStyle(fontSize = 24.sp, fontFamily = MainFont),
+                            cursorBrush = SolidColor(Color.Black),
+                            readOnly = !isInEditMode,
+                            decorationBox = { innerTextField ->
+                                if (title.isEmpty()) {
+                                    Text("제목을 입력하세요", style = TextStyle(color = Color.Gray, fontSize = 24.sp, fontFamily = MainFont))
+                                }
+                                innerTextField()
                             }
-                            innerTextField()
-                        }
-                    )
+                        )
+                        Divider(modifier = Modifier.padding(top = 8.dp), color = Color.Gray)
+                    }
+
                     Spacer(modifier = Modifier.height(20.dp))
+
+                    // 내용 입력
                     BasicTextField(
                         value = content,
                         onValueChange = onContentChange,

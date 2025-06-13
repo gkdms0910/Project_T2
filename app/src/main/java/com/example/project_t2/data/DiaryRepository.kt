@@ -20,4 +20,6 @@ class DiaryRepository(context: Context) {
     }
 
     suspend fun deleteDiary(diary: DiaryEntity) = diaryDao.deleteDiary(diary)
+
+    
 }

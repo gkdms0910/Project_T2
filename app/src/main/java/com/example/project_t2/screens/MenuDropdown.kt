@@ -62,6 +62,7 @@ fun MenuDropdown(navController: NavController) {
                     Icon(imageVector = Icons.Default.List, contentDescription = "일기 목록")
                 }
             )
+
         }
     }
 }

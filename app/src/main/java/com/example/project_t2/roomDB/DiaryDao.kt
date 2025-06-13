@@ -25,5 +25,7 @@ interface DiaryDao {
 
     @Delete
     suspend fun deleteDiary(diary: DiaryEntity)
+
+
 }
 
