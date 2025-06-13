@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.androidx.room.common)
     //implementation(libs.androidx.androidx.room.gradle.plugin)
     implementation(libs.androidx.room.runtime.android)
+    debugImplementation(libs.androidx.ui.tooling)
     ksp(libs.androidx.room.compiler)
 
     implementation("io.ktor:ktor-client-android:2.3.4")
