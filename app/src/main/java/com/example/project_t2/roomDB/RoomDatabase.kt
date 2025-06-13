@@ -4,13 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 @Database(
-    entities = [DiaryEntity::class],
-    version = 1,
-    exportSchema = false
+    entities = [DiaryEntity::class], version = 1, exportSchema = false
 )
-//@TypeConverters(Converters::class)
+@TypeConverters(Converters::class)
 abstract class DiaryDatabase : RoomDatabase() {
     abstract fun getDiaryDao(): DiaryDao
 
@@ -18,12 +17,10 @@ abstract class DiaryDatabase : RoomDatabase() {
         @Volatile
         private var DBInstance: DiaryDatabase? = null
         fun getDBInstance(context: Context): DiaryDatabase {
-            return DBInstance ?: synchronized(this){
+            return DBInstance ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    DiaryDatabase::class.java,
-                    "diarydb"
-                ).build()
+                    context.applicationContext, DiaryDatabase::class.java, "diarydb"
+                ).allowMainThreadQueries().build()
                 DBInstance = instance
                 instance
             }
