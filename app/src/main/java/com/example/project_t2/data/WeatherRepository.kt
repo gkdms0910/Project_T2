@@ -1,5 +1,6 @@
 package com.example.Project_T2.data
 
+import RetrofitInstance
 
 class WeatherRepository {
     private val api = RetrofitInstance.service
