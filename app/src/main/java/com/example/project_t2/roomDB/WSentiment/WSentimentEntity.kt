@@ -14,5 +14,8 @@ data class WSentimentEntity(
     val pm10: Float,
     val rainfall: Float,
     var sentiment: Sentiments,
+    var date: String,
+    var time: Int = 0,
+    var hours: Int = 0,
     val id: Int = 0
 )
