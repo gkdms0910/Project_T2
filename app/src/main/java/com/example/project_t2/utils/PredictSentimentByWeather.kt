@@ -1,11 +1,12 @@
 package com.example.project_t2.utils
 
 import com.example.project_t2.models.Sentiments
-import com.example.project_t2.models.Weather.SentimentEntry
+import com.example.project_t2.roomDB.WSentiment.WSentimentEntity
+import kotlin.collections.sortedBy
 
 fun predictSentimentByWeather(
-    input: SentimentEntry,
-    dataset: List<SentimentEntry>,
+    input: WSentimentEntity,
+    dataset: List<WSentimentEntity>,
     k: Int = 5
 ): Sentiments {
     val neighbors = dataset

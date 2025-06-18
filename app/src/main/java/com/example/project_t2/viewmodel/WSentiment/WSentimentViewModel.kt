@@ -1,6 +1,5 @@
-package com.example.project_t2.viewmodel
+package com.example.project_t2.viewmodel.WSentiment
 
-import android.media.CamcorderProfile.getAll
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.project_t2.roomDB.WSentiment.WSentimentEntity
