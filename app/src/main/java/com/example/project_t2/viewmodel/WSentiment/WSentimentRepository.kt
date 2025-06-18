@@ -23,6 +23,10 @@ class WSentimentRepository(private val db: WSentimentDatabase) {
             return
         }
 
+        if (lastItem.time != item.time) {
+            return
+        }
+
         val updateItem = item.copy(
             temperature = lastItem.temperature + item.temperature,
             humidity = lastItem.humidity + item.humidity,
