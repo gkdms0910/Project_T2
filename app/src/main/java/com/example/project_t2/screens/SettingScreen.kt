@@ -12,10 +12,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.project_t2.models.AppBackground
 import com.example.project_t2.models.GenericTopAppBar
+import com.example.project_t2.ui.theme.AppFontSize
 import com.example.project_t2.ui.theme.MainFont
 
 @Composable
-fun SettingScreen(navController: NavController) {
+fun SettingScreen(
+    navController: NavController,
+    currentFontSize: AppFontSize,
+    onFontSizeChange: (AppFontSize) -> Unit
+) {
     AppBackground {
         Scaffold(
             topBar = {
@@ -33,14 +38,20 @@ fun SettingScreen(navController: NavController) {
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                FontSizeSettingBox()
+                FontSizeSettingBox(
+                    currentFontSize = currentFontSize,
+                    onFontSizeChange = onFontSizeChange
+                )
             }
         }
     }
 }
 
 @Composable
-fun FontSizeSettingBox() {
+fun FontSizeSettingBox(
+    currentFontSize: AppFontSize,
+    onFontSizeChange: (AppFontSize) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -56,13 +67,28 @@ fun FontSizeSettingBox() {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            Button(onClick = { /* 크게 로직 */ }) {
+            Button(
+                onClick = { onFontSizeChange(AppFontSize.LARGE) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (currentFontSize == AppFontSize.LARGE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                )
+            ) {
                 Text("크게", fontSize = 16.sp, fontFamily = MainFont)
             }
-            Button(onClick = { /* 중간 로직 */ }) {
+            Button(
+                onClick = { onFontSizeChange(AppFontSize.MEDIUM) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (currentFontSize == AppFontSize.MEDIUM) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                )
+            ) {
                 Text("중간", fontSize = 16.sp, fontFamily = MainFont)
             }
-            Button(onClick = { /* 작게 로직 */ }) {
+            Button(
+                onClick = { onFontSizeChange(AppFontSize.SMALL) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (currentFontSize == AppFontSize.SMALL) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+                )
+            ) {
                 Text("작게", fontSize = 16.sp, fontFamily = MainFont)
             }
         }

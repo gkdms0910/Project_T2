@@ -6,12 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme = lightColorScheme(
-    primary = LightBrown,
-    secondary = SoftBlue,
-    tertiary = Cream,
-    background = Cream,
-    surface = Cream,
-    onPrimary = Color.White,
+    primary = SoftPink,
+    secondary = SkyBlue,
+    tertiary = Peach,
+    background = Lavender,
+    surface = Peach,
+    onPrimary = DarkCharcoal,
     onSecondary = DarkCharcoal,
     onTertiary = DarkCharcoal,
     onBackground = DarkCharcoal,
@@ -20,11 +20,13 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun Project_T2Theme(
+    fontSize: AppFontSize = AppFontSize.MEDIUM,
     content: @Composable () -> Unit
 ) {
+    val typography = getTypography(fontSize)
     MaterialTheme(
         colorScheme = LightColorScheme,
-        typography = Typography,
+        typography = typography,
         content = content
     )
 }
