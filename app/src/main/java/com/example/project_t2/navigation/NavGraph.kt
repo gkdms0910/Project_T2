@@ -13,19 +13,29 @@ import com.example.project_t2.roomDB.DiaryDatabase
 import com.example.project_t2.roomDB.DiaryRepository
 import com.example.project_t2.roomDB.DiaryViewModel
 import com.example.project_t2.roomDB.DiaryViewModelFactory
+import com.example.project_t2.roomDB.WSentiment.WSentimentDatabase
 import com.example.project_t2.screens.CalendarSearchScreen
 import com.example.project_t2.screens.DiaryScreen
 import com.example.project_t2.screens.MainScreen
 import com.example.project_t2.screens.SettingScreen
 import com.example.project_t2.screens.StatScreen
+import com.example.project_t2.viewmodel.WSentiment.WSentimentRepository
+import com.example.project_t2.viewmodel.stats.StatViewModel
+import com.example.project_t2.viewmodel.stats.StatViewModelFactory
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
     // ViewModel을 생성하기 위한 준비
     val context = LocalContext.current
-    val db = DiaryDatabase.getDBInstance(context)
-    val repository = DiaryRepository(db.getDiaryDao())
-    val factory = DiaryViewModelFactory(repository)
+    val diaryDb = DiaryDatabase.getDBInstance(context)
+    val diaryRepository = DiaryRepository(diaryDb.getDiaryDao())
+    // 오류 수정: 'repository' -> 'diaryRepository'
+    val diaryViewModelFactory = DiaryViewModelFactory(diaryRepository)
+
+    // StatViewModel을 위한 의존성 추가
+    val wSentimentDb = WSentimentDatabase.getDBInstance(context)
+    val wSentimentRepository = WSentimentRepository(wSentimentDb)
+    val statViewModelFactory = StatViewModelFactory(diaryRepository, wSentimentRepository)
 
     NavHost(navController = navController, startDestination = "main") {
         composable("main") { MainScreen(Modifier, navController) }
@@ -37,7 +47,7 @@ fun AppNavGraph(navController: NavHostController) {
             })
         ) { backStackEntry ->
             val dateString = backStackEntry.arguments?.getString("date")
-            val diaryViewModel: DiaryViewModel = viewModel(factory = factory)
+            val diaryViewModel: DiaryViewModel = viewModel(factory = diaryViewModelFactory)
             DiaryScreen(
                 navController = navController,
                 viewModel = diaryViewModel,
@@ -45,15 +55,15 @@ fun AppNavGraph(navController: NavHostController) {
             )
         }
 
-        // 'calendar' 와 'search' 를 'calendar_search' 로 통합
         composable("calendar_search") {
-            val diaryViewModel: DiaryViewModel = viewModel(factory = factory)
+            val diaryViewModel: DiaryViewModel = viewModel(factory = diaryViewModelFactory)
             CalendarSearchScreen(navController = navController, viewModel = diaryViewModel)
         }
 
-        // 기존 composable("search") 와 composable("calendar")는 삭제
-
-        composable("stats") { StatScreen(navController = navController) }
+        composable("stats") {
+            val statViewModel: StatViewModel = viewModel(factory = statViewModelFactory)
+            StatScreen(navController = navController, viewModel = statViewModel)
+        }
         composable("settings") { SettingScreen(navController = navController) }
     }
 }
