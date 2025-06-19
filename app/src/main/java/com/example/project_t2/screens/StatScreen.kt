@@ -21,19 +21,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.project_t2.graphics.Emotion
+import com.example.project_t2.models.AppBackground
 import com.example.project_t2.models.GenericTopAppBar
 import com.example.project_t2.models.Sentiments
 import com.example.project_t2.models.Statistics.Period
+import com.example.project_t2.ui.theme.MainFont
 import com.example.project_t2.viewmodel.stats.StatViewModel
 
-// 데이터 클래스를 추가하여 UI에 필요한 정보를 구조화합니다.
 private data class PredictionUiModel(
     val imageResId: Int?,
     val message: String,
     val emojiForNone: String? = null
 )
 
-// Sentiments enum을 새로운 UI 모델로 변환하는 함수입니다.
 @Composable
 private fun mapSentimentToUiModel(sentiment: Sentiments): PredictionUiModel {
     return when (sentiment) {
@@ -53,46 +53,59 @@ fun StatScreen(navController: NavController, viewModel: StatViewModel) {
     val predictedSentiment by viewModel.predictedSentiment.collectAsState()
     val isPredicting by viewModel.isPredicting.collectAsState()
 
-    Scaffold(
-        topBar = {
-            GenericTopAppBar(title = "통계 및 예측", onNavigate = { route -> navController.navigate(route) })
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(16.dp)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            PeriodSelector(
-                selectedPeriod = selectedPeriod,
-                onPeriodSelected = { viewModel.setPeriod(it) }
-            )
+    AppBackground {
+        Scaffold(
+            topBar = {
+                GenericTopAppBar(title = "통계 및 예측", onNavigate = { route -> navController.navigate(route) })
+            },
+            containerColor = Color.Transparent
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(16.dp)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                PeriodSelector(
+                    selectedPeriod = selectedPeriod,
+                    onPeriodSelected = { viewModel.setPeriod(it) }
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-            if (emotionStats.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("해당 기간에 작성된 일기가 없습니다.")
+                if (emotionStats.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("해당 기간에 작성된 일기가 없습니다.", style = MaterialTheme.typography.bodyLarge)
+                    }
+                } else {
+                    EmotionBarChart(stats = emotionStats)
                 }
-            } else {
-                EmotionBarChart(stats = emotionStats)
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp), color = Color.Gray.copy(alpha = 0.5f))
+
+                SentimentPrediction(
+                    isPredicting = isPredicting,
+                    predictedSentiment = predictedSentiment,
+                    onPredictClick = { viewModel.predictTodaysSentiment() }
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // 추가된 설명 문구
+                Text(
+                    text = "※ 감정 예측은 과거의 날씨와 그날 기록된 감정 데이터를 기반으로 합니다.\n실제 감정과 다를 수 있으니 재미로 확인해주세요.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
             }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
-
-            SentimentPrediction(
-                isPredicting = isPredicting,
-                predictedSentiment = predictedSentiment,
-                onPredictClick = { viewModel.predictTodaysSentiment() }
-            )
         }
     }
 }
@@ -107,14 +120,14 @@ fun SentimentPrediction(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("오늘의 감정 예측", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text("오늘의 감정 예측", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = onPredictClick,
             enabled = !isPredicting,
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("예측 시작!")
+            Text("예측 시작!", style = MaterialTheme.typography.labelLarge)
         }
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -122,18 +135,15 @@ fun SentimentPrediction(
             CircularProgressIndicator()
         } else {
             if (predictedSentiment != null) {
-                // 수정된 부분: 새로운 UI 모델을 사용합니다.
                 val uiModel = mapSentimentToUiModel(predictedSentiment)
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     if (uiModel.imageResId != null) {
-                        // 수정된 부분: 이모지 대신 이미지를 표시합니다.
                         Image(
                             painter = painterResource(id = uiModel.imageResId),
                             contentDescription = "Predicted Emotion",
                             modifier = Modifier.size(80.dp)
                         )
                     } else {
-                        // '알 수 없음' 상태일 때만 이모지를 표시합니다.
                         Text(uiModel.emojiForNone ?: "", fontSize = 64.sp)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
@@ -146,14 +156,13 @@ fun SentimentPrediction(
             } else {
                 Text(
                     text = "버튼을 눌러 오늘의 감정을 예측해보세요.",
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }
     }
 }
-
-// 기존의 sentimentToUiElements 함수는 삭제합니다.
 
 @Composable
 fun PeriodSelector(selectedPeriod: Period, onPeriodSelected: (Period) -> Unit) {
@@ -164,8 +173,8 @@ fun PeriodSelector(selectedPeriod: Period, onPeriodSelected: (Period) -> Unit) {
     ) {
         periods.forEach { period ->
             val isSelected = period == selectedPeriod
-            val containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-            val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+            val containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+            val contentColor = MaterialTheme.colorScheme.onPrimary
 
             Button(
                 onClick = { onPeriodSelected(period) },
@@ -175,7 +184,7 @@ fun PeriodSelector(selectedPeriod: Period, onPeriodSelected: (Period) -> Unit) {
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(period.toDisplayName())
+                Text(period.toDisplayName(), style = MaterialTheme.typography.labelLarge)
             }
         }
     }
@@ -199,7 +208,7 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
             .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("감정 통계", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text("감정 통계", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
         stats.entries.sortedByDescending { it.value }.forEach { (emotion, percentage) ->
             Row(
@@ -215,7 +224,7 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
                 Text(
                     text = emotion.displayName,
                     modifier = Modifier.width(80.dp),
-                    fontSize = 16.sp
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -233,7 +242,7 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
                     text = "${(percentage * 100).toInt()}%",
                     modifier = Modifier.width(50.dp),
                     textAlign = TextAlign.End,
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -244,10 +253,10 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
 @Composable
 fun emotionToColor(emotion: Emotion): Color {
     return when (emotion) {
-        Emotion.HAPPY -> Color(0xFFFFC107)
-        Emotion.JOY -> Color(0xFF81C784)
-        Emotion.TENDER-> Color(0xFFB0BEC5)
-        Emotion.SAD -> Color(0xFF64B5F6)
-        Emotion.BAD -> Color(0xFFE57373)
+        Emotion.HAPPY -> Color(0xFFFBC02D) // Yellow
+        Emotion.JOY -> Color(0xFF66BB6A)   // Green
+        Emotion.TENDER -> Color(0xFFB0BEC5) // Blue Grey
+        Emotion.SAD -> Color(0xFF42A5F5)   // Blue
+        Emotion.BAD -> Color(0xFFEF5350)   // Red
     }
 }

@@ -8,21 +8,18 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,10 +29,12 @@ import com.example.project_t2.data.GetWeather
 import com.example.project_t2.data.WeatherAnalyzer
 import com.example.project_t2.data.WeatherData
 import com.example.project_t2.graphics.Emotion
+import com.example.project_t2.models.AppBackground
 import com.example.project_t2.models.Weathers
 import com.example.project_t2.network.getKoBERTResponse
 import com.example.project_t2.roomDB.DiaryEntity
 import com.example.project_t2.roomDB.DiaryViewModel
+import com.example.project_t2.ui.theme.MainFont
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -170,20 +169,15 @@ fun DiaryScreen(
 
 
     if (!isToday && !diaryExists) {
-        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("지난 날짜의 일기는 작성할 수 없습니다.")
+        AppBackground {
+            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("지난 날짜의 일기는 작성할 수 없습니다.", fontFamily = MainFont)
+            }
         }
         return
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(id = R.drawable.paper_texture),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-
+    AppBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -235,13 +229,16 @@ fun DiaryScreen(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("제목") },
+                label = { Text("제목", fontFamily = MainFont) },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = isEditMode,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.LightGray
-                )
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = Color.Gray,
+                    unfocusedLabelColor = Color.Gray,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                ),
+                textStyle = TextStyle(fontFamily = MainFont)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -271,15 +268,18 @@ fun DiaryScreen(
             OutlinedTextField(
                 value = content,
                 onValueChange = { content = it },
-                label = { Text("오늘의 이야기를 들려주세요.") },
+                label = { Text("오늘의 이야기를 들려주세요.", fontFamily = MainFont) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 enabled = isEditMode,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.LightGray
-                )
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = Color.Gray,
+                    unfocusedLabelColor = Color.Gray,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                ),
+                textStyle = TextStyle(fontFamily = MainFont)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -298,7 +298,7 @@ fun WeatherSelector(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "날씨: $weatherDescription", fontWeight = FontWeight.SemiBold)
+        Text(text = "날씨: $weatherDescription", fontWeight = FontWeight.SemiBold, fontFamily = MainFont)
         Spacer(modifier = Modifier.height(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -306,16 +306,15 @@ fun WeatherSelector(
         ) {
             Weathers.values().forEach { weather ->
                 val isSelected = weather == selectedWeather
-                // **수정사항: 선택 시 테두리와 배경색 변경**
                 val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
-                val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f) else Color.Transparent
+                val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else Color.Transparent
 
                 Box(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
                         .border(width = 2.dp, color = borderColor, shape = CircleShape)
-                        .background(color = backgroundColor)
+                        .background(color = backgroundColor, shape = CircleShape)
                         .clickable(enabled = isEditable) { onWeatherSelected(weather) },
                     contentAlignment = Alignment.Center
                 ) {
@@ -354,29 +353,24 @@ fun EmotionSelector(
     ) {
         Emotion.values().forEach { emotion ->
             val isSelected = emotion == selectedEmotion
-            // **수정사항: 선택 시 테두리와 배경색 변경**
-            val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
-            val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f) else Color.Transparent
+            val scale = if (isSelected) 1.2f else 1.0f
+            val alpha = if (isSelected) 1f else 0.6f
 
-            Box(
+            Image(
+                painter = painterResource(id = emotion.imageResId),
+                contentDescription = emotion.displayName,
                 modifier = Modifier
                     .size(50.dp)
+                    .scale(scale)
+                    .alpha(alpha)
                     .clip(CircleShape)
-                    .border(width = 2.dp, color = borderColor, shape = CircleShape)
-                    .background(color = backgroundColor)
-                    .clickable(enabled = isEditable) { onEmotionSelected(emotion) },
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = emotion.imageResId),
-                    contentDescription = emotion.displayName,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
+                    .clickable(enabled = isEditable) { onEmotionSelected(emotion) }
+            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiaryTopAppBar(
     onNavigate: (String) -> Unit,
@@ -388,69 +382,63 @@ fun DiaryTopAppBar(
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box {
-            Image(
-                painter = painterResource(id = R.drawable.menu),
-                contentDescription = "Menu",
-                modifier = Modifier
-                    .size(50.dp)
-                    .clickable { menuExpanded = true }
-            )
+    CenterAlignedTopAppBar(
+        title = { Text("일기", fontFamily = MainFont) },
+        navigationIcon = {
+            IconButton(onClick = { menuExpanded = true }) {
+                Image(
+                    painter = painterResource(id = R.drawable.outline_menu_24),
+                    contentDescription = "Menu"
+                )
+            }
             DropdownMenu(
                 expanded = menuExpanded,
                 onDismissRequest = { menuExpanded = false }
             ) {
                 DropdownMenuItem(
-                    text = { Text("캘린더/검색") },
+                    text = { Text("캘린더/검색", fontFamily = MainFont) },
                     onClick = {
                         menuExpanded = false
                         onNavigate("calendar_search")
                     }
                 )
                 DropdownMenuItem(
-                    text = { Text("통계") },
+                    text = { Text("통계", fontFamily = MainFont) },
                     onClick = {
                         menuExpanded = false
                         onNavigate("stats")
                     }
                 )
                 DropdownMenuItem(
-                    text = { Text("설정") },
+                    text = { Text("설정", fontFamily = MainFont) },
                     onClick = {
                         menuExpanded = false
                         onNavigate("settings")
                     }
                 )
             }
-        }
-        Text("일기", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Box(modifier = Modifier.size(50.dp)) {
+        },
+        actions = {
             if (isToday || diaryExists) {
                 if (isEditMode) {
-                    Image(
-                        painter = painterResource(id = R.drawable.outline_check_box_24),
-                        contentDescription = "Save",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clickable { onSaveClick() }
-                    )
+                    IconButton(onClick = onSaveClick) {
+                        Image(
+                            painter = painterResource(id = R.drawable.outline_check_box_24),
+                            contentDescription = "Save"
+                        )
+                    }
                 } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_edit),
-                        contentDescription = "Edit",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clickable { onEditClick() }
-                    )
+                    IconButton(onClick = onEditClick) {
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_edit),
+                            contentDescription = "Edit"
+                        )
+                    }
                 }
             }
-        }
-    }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.Transparent
+        )
+    )
 }

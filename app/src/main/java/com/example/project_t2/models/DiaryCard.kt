@@ -18,30 +18,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.project_t2.roomDB.DiaryEntity
+import com.example.project_t2.ui.theme.MainFont
 
 @Composable
 fun DiaryCard(diary: DiaryEntity, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
             .clickable { onClick() }
-            .padding(12.dp),
+            .padding(vertical = 12.dp, horizontal = 8.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Text(text = "제목: ${diary.title}", fontWeight = FontWeight.Bold)
-        Text(text = "내용: ${diary.content}", maxLines = 1)
-        Text(text = "날짜: ${diary.time.toLocalDate()}")
-        // 수정된 부분: 감정 표시를 Image와 Text로 변경
+        Text(text = "제목: ${diary.title}", fontWeight = FontWeight.Bold, fontFamily = MainFont)
+        Text(text = "내용: ${diary.content}", maxLines = 1, fontFamily = MainFont)
+        Text(text = "날짜: ${diary.time.toLocalDate()}", fontFamily = MainFont)
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "감정: ")
+            Text(text = "감정: ", fontFamily = MainFont)
             Image(
                 painter = painterResource(id = diary.emotion.imageResId),
                 contentDescription = diary.emotion.displayName,
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(4.dp))
-            Text(text = "(${diary.emotion.displayName})")
+            Text(text = "(${diary.emotion.displayName})", fontFamily = MainFont)
         }
     }
 }
