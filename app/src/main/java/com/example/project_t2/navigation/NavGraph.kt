@@ -14,6 +14,7 @@ import com.example.project_t2.data.DiaryViewModelFactory
 import com.example.project_t2.screens.DiaryListScreen
 import com.example.project_t2.screens.DiaryScreen
 import com.example.project_t2.screens.MainScreen
+import com.example.project_t2.screens.SettingScreen
 
 @Composable
 fun AppNavGraph(
@@ -44,6 +45,11 @@ fun AppNavGraph(
 
         composable("diaryList") {
             DiaryListScreen(
+                navController = navController
+            )
+        }
+        composable("setting") {
+            SettingScreen(
                 navController = navController
             )
         }

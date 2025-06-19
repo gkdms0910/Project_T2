@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -60,6 +61,16 @@ fun MenuDropdown(navController: NavController) {
                 },
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.List, contentDescription = "일기 목록")
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("설정") },
+                onClick = {
+                    navController.navigate("setting")
+                    menuExpanded = false
+                },
+                leadingIcon = {
+                    Icon(imageVector = Icons.Default.Settings, contentDescription = "설정")
                 }
             )
 
