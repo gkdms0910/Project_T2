@@ -41,6 +41,7 @@ import java.time.LocalDateTime
 fun DiaryScreen(
     navController: NavController,
     viewModel: DiaryViewModel,
+    dateString: String? = null,
     modifier: Modifier = Modifier
 ) {
     var title by remember { mutableStateOf("") }
@@ -277,14 +278,14 @@ fun DiaryTopAppBar(onNavigate: (String) -> Unit, onSaveClick: () -> Unit) {
                     text = { Text("캘린더") },
                     onClick = {
                         menuExpanded = false
-                        onNavigate("calendar")
+                        onNavigate("calendar_search")
                     }
                 )
                 DropdownMenuItem(
                     text = { Text("검색") },
                     onClick = {
                         menuExpanded = false
-                        onNavigate("search")
+                        onNavigate("calendar_search")
                     }
                 )
                 DropdownMenuItem(
