@@ -1,4 +1,4 @@
-package com.example.p2w.model
+package com.example.project_t2.model
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -7,7 +7,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import com.example.p2w.roomDB.SortType
+import com.example.project_t2.roomDB.SortType
 import androidx.compose.ui.graphics.Color
 
 @Composable
