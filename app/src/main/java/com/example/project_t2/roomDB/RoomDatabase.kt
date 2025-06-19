@@ -10,7 +10,7 @@ import androidx.room.RoomDatabase
     version = 1,
     exportSchema = false
 )
-//@TypeConverters(Converters::class)
+@TypeConverters(Converters::class)
 abstract class DiaryDatabase : RoomDatabase() {
     abstract fun getDiaryDao(): DiaryDao
 
