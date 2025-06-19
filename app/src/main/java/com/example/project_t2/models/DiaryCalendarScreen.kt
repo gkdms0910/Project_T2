@@ -1,9 +1,9 @@
-package com.example.p2w.model
+package com.example.project_t2.model
 
 import androidx.compose.runtime.*
 import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.p2w.roomDB.DiaryViewModel
+import com.example.project_t2.roomDB.DiaryViewModel
 
 @Composable
 fun DiaryCalendarScreen(
