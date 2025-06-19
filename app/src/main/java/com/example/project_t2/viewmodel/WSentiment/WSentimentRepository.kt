@@ -30,9 +30,7 @@ class WSentimentRepository(private val db: WSentimentDatabase) {
         val updateItem = item.copy(
             temperature = lastItem.temperature + item.temperature,
             humidity = lastItem.humidity + item.humidity,
-            sunshine = lastItem.sunshine + item.sunshine,
             wind = lastItem.wind + item.wind,
-            pm10 = lastItem.pm10 + item.pm10,
             rainfall = lastItem.rainfall + item.rainfall,
             sentiment = item.sentiment,
             hours = lastItem.hours + 1,
