@@ -1,4 +1,4 @@
-package com.example.p2w.model
+package com.example.project_t2.model
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.p2w.roomDB.DiaryEntity
+import com.example.project_t2.roomDB.DiaryEntity
 
 @Composable
 fun DiaryCard(diary: DiaryEntity, onClick: () -> Unit) {
