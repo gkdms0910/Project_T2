@@ -8,10 +8,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-class DiaryViewModel(private val repository: DiaryRepository) : ViewModel() {
+class DiaryViewModel(val repository: DiaryRepository) : ViewModel() { // repository를 public으로 변경
 
     private val _diaryList = MutableStateFlow<List<DiaryEntity>>(emptyList())
     val diaryList: StateFlow<List<DiaryEntity>> = _diaryList.asStateFlow()
+
+    // 검색 결과를 담을 StateFlow 추가
+    private val _searchResults = MutableStateFlow<List<DiaryEntity>>(emptyList())
+    val searchResults: StateFlow<List<DiaryEntity>> = _searchResults.asStateFlow()
 
     init {
         loadAllDiaries()
@@ -26,22 +30,31 @@ class DiaryViewModel(private val repository: DiaryRepository) : ViewModel() {
         return repository.getDiary(id)
     }
 
-    // 날짜로 일기 조회
     suspend fun getDiaryByDate(date: LocalDate): DiaryEntity? {
         return repository.getDiaryByDate(date)
     }
 
-    // 일기 추가
     fun insertDiary(diary: DiaryEntity) {
         viewModelScope.launch {
             repository.insertDiary(diary)
         }
     }
 
-    // 일기 수정
     fun updateDiary(diary: DiaryEntity) {
         viewModelScope.launch {
             repository.updateDiary(diary)
         }
+    }
+
+    // 검색 수행 함수 추가
+    fun searchDiaries(keyword: String, sortType: SortType) {
+        viewModelScope.launch {
+            _diaryList.value = repository.searchDiary(keyword, sortType)
+        }
+    }
+
+    // 모든 일기를 다시 불러와서 검색 상태를 해제하는 함수
+    fun clearSearch() {
+        loadAllDiaries()
     }
 }
