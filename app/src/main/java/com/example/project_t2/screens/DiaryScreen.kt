@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -54,25 +56,25 @@ fun DiaryScreen(
     var selectedWeather by remember { mutableStateOf<Weathers?>(null) }
     var weatherDescription by remember { mutableStateOf("날씨 정보 로딩 중...") }
 
-    // 수정 시 기존 다이어리의 ID를 저장하기 위한 상태
     var diaryId by remember { mutableStateOf<Int?>(null) }
+    var isReadOnly by remember { mutableStateOf(false) } // 수정 가능 상태 관리를 위한 변수
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    // 화면 진입 시 오늘 날짜의 일기가 있는지 확인
     LaunchedEffect(Unit) {
         val todayDiary = viewModel.getDiaryByDate(LocalDate.now())
         if (todayDiary != null) {
-            // 오늘 쓴 일기가 있으면, 화면 상태를 해당 내용으로 채움
             diaryId = todayDiary.id
             title = todayDiary.title
             content = todayDiary.content
             selectedEmotion = todayDiary.emotion
             selectedWeather = todayDiary.weather
+            isReadOnly = true // 기존 일기가 있으면 읽기 전용으로 시작
+        } else {
+            isReadOnly = false // 새 일기는 바로 수정 모드로 시작
         }
 
-        // 날씨 정보 가져오기
         withContext(Dispatchers.IO) {
             try {
                 val items = GetWeather()
@@ -102,7 +104,7 @@ fun DiaryScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             DiaryTopAppBar(
-                onMenuClick = { /* TODO: 메뉴 클릭 */ },
+                onNavigate = { route -> navController.navigate(route) },
                 onSaveClick = {
                     coroutineScope.launch {
                         if (selectedWeather == null || selectedEmotion == null) {
@@ -111,7 +113,7 @@ fun DiaryScreen(
                         }
 
                         val diary = DiaryEntity(
-                            id = diaryId ?: 0, // id가 있으면 수정, 없으면 0으로 새 일기
+                            id = diaryId ?: 0,
                             title = title,
                             content = content,
                             emotion = selectedEmotion!!,
@@ -124,19 +126,23 @@ fun DiaryScreen(
                         } else {
                             viewModel.insertDiary(diary)
                         }
-                        navController.popBackStack() // 저장 후 이전 화면으로 이동
+                        Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
+                        navController.popBackStack()
                     }
-                }
+                },
+                onEditClick = { isReadOnly = false }, // 수정 아이콘 클릭 시 수정 모드로 전환
+                isReadOnly = isReadOnly,
+                isExistingDiary = diaryId != null
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 제목 입력 필드
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
                 label = { Text("제목") },
                 modifier = Modifier.fillMaxWidth(),
+                enabled = !isReadOnly, // 읽기 전용 상태에 따라 활성화 여부 결정
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.Gray,
                     unfocusedBorderColor = Color.LightGray
@@ -145,32 +151,31 @@ fun DiaryScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 날씨 선택 영역
             WeatherSelector(
                 weatherDescription = weatherDescription,
                 selectedWeather = selectedWeather,
-                onWeatherSelected = { selectedWeather = it }
+                onWeatherSelected = { selectedWeather = it },
+                isReadOnly = isReadOnly // 읽기 전용 상태 전달
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
-            // 감정 선택 영역
             EmotionSelector(
                 selectedEmotion = selectedEmotion,
-                onEmotionSelected = { selectedEmotion = it }
+                onEmotionSelected = { selectedEmotion = it },
+                isReadOnly = isReadOnly // 읽기 전용 상태 전달
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 내용 입력 필드
             OutlinedTextField(
                 value = content,
                 onValueChange = { content = it },
                 label = { Text("오늘의 이야기를 들려주세요.") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f), // 남은 공간을 모두 차지
+                    .weight(1f),
+                enabled = !isReadOnly, // 읽기 전용 상태에 따라 활성화 여부 결정
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.Gray,
                     unfocusedBorderColor = Color.LightGray
@@ -183,7 +188,15 @@ fun DiaryScreen(
 }
 
 @Composable
-fun DiaryTopAppBar(onMenuClick: () -> Unit, onSaveClick: () -> Unit) {
+fun DiaryTopAppBar(
+    onNavigate: (String) -> Unit,
+    onSaveClick: () -> Unit,
+    onEditClick: () -> Unit,
+    isReadOnly: Boolean,
+    isExistingDiary: Boolean
+) {
+    var menuExpanded by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -191,21 +204,68 @@ fun DiaryTopAppBar(onMenuClick: () -> Unit, onSaveClick: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.outline_menu_24),
-            contentDescription = "Menu",
-            modifier = Modifier
-                .size(50.dp)
-                .clickable { onMenuClick() }
-        )
+        Box {
+            Image(
+                painter = painterResource(id = R.drawable.outline_menu_24),
+                contentDescription = "Menu",
+                modifier = Modifier
+                    .size(50.dp)
+                    .clickable { menuExpanded = true }
+            )
+            DropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("캘린더") },
+                    onClick = {
+                        menuExpanded = false
+                        onNavigate("calendar")
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("검색") },
+                    onClick = {
+                        menuExpanded = false
+                        onNavigate("search")
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("통계") },
+                    onClick = {
+                        menuExpanded = false
+                        onNavigate("stats")
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("설정") },
+                    onClick = {
+                        menuExpanded = false
+                        onNavigate("settings")
+                    }
+                )
+            }
+        }
         Text("일기 작성", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Image(
-            painter = painterResource(id = R.drawable.outline_check_circle_24),
-            contentDescription = "Save",
-            modifier = Modifier
-                .size(50.dp)
-                .clickable { onSaveClick() }
-        )
+
+        // 조건에 따라 아이콘 변경
+        if (isExistingDiary && isReadOnly) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_edit), // 수정 아이콘
+                contentDescription = "Edit",
+                modifier = Modifier
+                    .size(50.dp)
+                    .clickable { onEditClick() }
+            )
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.outline_check_circle_24), // 저장 아이콘
+                contentDescription = "Save",
+                modifier = Modifier
+                    .size(50.dp)
+                    .clickable { onSaveClick() }
+            )
+        }
     }
 }
 
@@ -213,7 +273,8 @@ fun DiaryTopAppBar(onMenuClick: () -> Unit, onSaveClick: () -> Unit) {
 fun WeatherSelector(
     weatherDescription: String,
     selectedWeather: Weathers?,
-    onWeatherSelected: (Weathers) -> Unit
+    onWeatherSelected: (Weathers) -> Unit,
+    isReadOnly: Boolean // 파라미터 추가
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -233,10 +294,9 @@ fun WeatherSelector(
                         .size(48.dp)
                         .clip(CircleShape)
                         .background(if (isSelected) Color.LightGray.copy(alpha = 0.5f) else Color.Transparent)
-                        .clickable { onWeatherSelected(weather) },
+                        .clickable(enabled = !isReadOnly) { onWeatherSelected(weather) }, // 클릭 가능 여부 제어
                     contentAlignment = Alignment.Center
                 ) {
-                    // TODO: 각 날씨에 맞는 아이콘으로 교체하면 더 좋습니다.
                     Text(text = weatherToEmoji(weather), fontSize = 30.sp)
                 }
             }
@@ -244,7 +304,6 @@ fun WeatherSelector(
     }
 }
 
-// 임시로 날씨를 이모지로 표현하는 함수
 fun weatherToEmoji(weather: Weathers): String {
     return when (weather) {
         Weathers.SUNNY -> "☀️"
@@ -261,7 +320,11 @@ fun weatherToEmoji(weather: Weathers): String {
 
 
 @Composable
-fun EmotionSelector(selectedEmotion: Emotion?, onEmotionSelected: (Emotion) -> Unit) {
+fun EmotionSelector(
+    selectedEmotion: Emotion?,
+    onEmotionSelected: (Emotion) -> Unit,
+    isReadOnly: Boolean // 파라미터 추가
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -275,7 +338,7 @@ fun EmotionSelector(selectedEmotion: Emotion?, onEmotionSelected: (Emotion) -> U
                     .size(50.dp)
                     .clip(CircleShape)
                     .background(if (isSelected) Color.LightGray.copy(alpha = 0.5f) else Color.Transparent)
-                    .clickable { onEmotionSelected(emotion) },
+                    .clickable(enabled = !isReadOnly) { onEmotionSelected(emotion) }, // 클릭 가능 여부 제어
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = emotion.emoji, fontSize = 32.sp)
@@ -283,4 +346,3 @@ fun EmotionSelector(selectedEmotion: Emotion?, onEmotionSelected: (Emotion) -> U
         }
     }
 }
-
