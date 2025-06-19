@@ -2,8 +2,8 @@ package com.example.project_t2.data
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.project_t2.api.getKoBERTResponse
 import com.example.project_t2.graphics.Emotion
+import com.example.project_t2.network.getKoBERTResponse
 import com.example.project_t2.roomDB.DiaryEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,16 +29,16 @@ class DiaryViewModel(private val repository: DiaryRepository) : ViewModel() {
 
     private fun mapLabelToEmotion(label: String): Emotion {
         return when (label) {
-            "행복" -> Emotion.SMILE
+            "행복" -> Emotion.HAPPY
             "슬픔" -> Emotion.SAD
             "분노" -> Emotion.ANGRY
-            else -> Emotion.BORED
+            else -> Emotion.TENDER
         }
     }
 
     fun analyzeEmotion(content: String) {
         if (content.isBlank()) {
-            _analysisResult.value = Emotion.SMILE
+            _analysisResult.value = Emotion.HAPPY
             return
         }
         viewModelScope.launch {
@@ -47,7 +47,7 @@ class DiaryViewModel(private val repository: DiaryRepository) : ViewModel() {
                 val response = getKoBERTResponse(content)
                 _analysisResult.value = mapLabelToEmotion(response.predicted_label)
             } catch (e: Exception) {
-                _analysisResult.value = Emotion.SMILE
+                _analysisResult.value = Emotion.HAPPY
                 e.printStackTrace()
             } finally {
                 _isLoading.value = false

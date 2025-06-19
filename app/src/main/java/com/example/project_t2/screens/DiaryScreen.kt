@@ -56,7 +56,7 @@ fun DiaryScreen(
 ) {
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
-    var selectedEmotion by remember { mutableStateOf(Emotion.SMILE) }
+    var selectedEmotion by remember { mutableStateOf(Emotion.HAPPY) }
     val savedDiary by diaryViewModel.selectedDiary.collectAsState()
     val isLoading by diaryViewModel.isLoading.collectAsState()
     val analysisResult by diaryViewModel.analysisResult.collectAsState()
@@ -293,7 +293,7 @@ fun DiaryScreenPreview() {
             navController = rememberNavController(),
             title = "오늘의 일기 제목",
             content = "일기 내용",
-            selectedEmotion = Emotion.SMILE,
+            selectedEmotion = Emotion.HAPPY,
             currentWeathers = Weathers.SUNNY,
             currentTemperature = "25°C",
             isEditableDay = true,

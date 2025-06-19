@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.Project_T2.ui.WeatherScreen
 import com.example.project_t2.navigation.AppNavGraph
 import com.example.project_t2.ui.theme.Project_T2Theme
 

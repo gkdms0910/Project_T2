@@ -152,8 +152,8 @@ private fun DiaryListScreenContent(
 @Composable
 private fun DiaryListScreenPreview() {
     val dummyDiaries = listOf(
-        DiaryEntity(id = 1, title = "첫 번째 일기", content = "오늘은 정말 좋은 날이었다. 코딩이 술술 잘 풀렸다.", weather = Weathers.SUNNY, emotion = Emotion.SMILE, time = LocalDateTime.now()),
-        DiaryEntity(id = 2, title = "두 번째 일기", content = "조금 피곤했지만 보람찬 하루. 버그를 하나 잡았다.조금 피곤했지만 보람찬 하루. 버그를 하나 잡았다.조금 피곤했지만 보람찬 하루. 버그를 하나 잡았다.조금 피곤했지만 보람찬 하루. 버그를 하나 잡았다.", weather = Weathers.CLOUDY, emotion = Emotion.BORED, time = LocalDateTime.now().minusDays(1))
+        DiaryEntity(id = 1, title = "첫 번째 일기", content = "오늘은 정말 좋은 날이었다. 코딩이 술술 잘 풀렸다.", weather = Weathers.SUNNY, emotion = Emotion.HAPPY, time = LocalDateTime.now()),
+        DiaryEntity(id = 2, title = "두 번째 일기", content = "조금 피곤했지만 보람찬 하루. 버그를 하나 잡았다.조금 피곤했지만 보람찬 하루. 버그를 하나 잡았다.조금 피곤했지만 보람찬 하루. 버그를 하나 잡았다.조금 피곤했지만 보람찬 하루. 버그를 하나 잡았다.", weather = Weathers.CLOUDY, emotion = Emotion.TENDER, time = LocalDateTime.now().minusDays(1))
     )
     Project_T2Theme {
         DiaryListScreenContent(
