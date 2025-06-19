@@ -70,7 +70,7 @@ fun DiaryScreen(modifier: Modifier = Modifier) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 4. 감정 선택 영역
+
             EmotionSelector(
                 selectedEmotion = selectedEmotion,
                 onEmotionSelected = { selectedEmotion = it }
