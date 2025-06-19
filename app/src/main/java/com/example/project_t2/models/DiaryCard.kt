@@ -1,4 +1,4 @@
-package com.example.project_t2.model
+package com.example.project_t2.models
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

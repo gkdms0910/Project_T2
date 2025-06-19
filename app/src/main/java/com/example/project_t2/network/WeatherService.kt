@@ -1,6 +1,6 @@
-package com.example.project_T2.network
+package com.example.project_t2.network
 
-import com.example.Project_T2.data.Weather
+import com.example.project_t2.data.Weather
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query

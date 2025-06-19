@@ -1,4 +1,4 @@
-package com.example.project_t2.model
+package com.example.project_t2.models
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.project_t2.graphics.Emotion
-import com.example.project_t2.models.Weathers
 import com.example.project_t2.roomDB.DiaryEntity
 import java.time.LocalDate
 import java.time.LocalDateTime

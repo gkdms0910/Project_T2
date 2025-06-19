@@ -1,4 +1,4 @@
-package com.example.project_t2.model
+package com.example.project_t2.models
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,11 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.project_t2.graphics.Emotion
-import com.example.project_t2.models.Weathers
 import com.example.project_t2.roomDB.DiaryEntity
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -55,7 +55,7 @@ fun EmojiCalendar(
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f),
                 fontSize = 14.sp,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = TextAlign.Center
             )
         }
     }

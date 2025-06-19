@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
-import com.example.Project_T2.ui.WeatherScreen
 import com.example.project_t2.navigation.AppNavGraph
 import com.example.project_t2.screens.MainScreen
 import com.example.project_t2.ui.theme.Project_T2Theme

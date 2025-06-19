@@ -1,8 +1,7 @@
-package com.example.project_t2.model
+package com.example.project_t2.models
 
 import androidx.compose.runtime.*
 import androidx.navigation.NavController
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.project_t2.roomDB.DiaryViewModel
 
 @Composable
