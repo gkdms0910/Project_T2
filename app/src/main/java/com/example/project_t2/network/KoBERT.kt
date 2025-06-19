@@ -1,4 +1,4 @@
-package com.example.project_t2.api
+package com.example.project_t2.network
 
 import com.example.project_t2.models.KoBERT.KoBERTRequestBody
 import com.example.project_t2.models.KoBERT.KoBERTResponse
@@ -8,6 +8,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 
@@ -21,7 +22,7 @@ suspend fun getKoBERTResponse(text: String) : KoBERTResponse {
     val url = "http://3.24.124.212/predict"
 
     val response: HttpResponse = client.post(url) {
-        contentType(io.ktor.http.ContentType.Application.Json)
+        contentType(ContentType.Application.Json)
         setBody(KoBERTRequestBody(text = text))
     }
 
