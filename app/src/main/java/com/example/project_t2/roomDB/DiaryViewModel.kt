@@ -8,13 +8,19 @@ import kotlinx.coroutines.launch
 
 class DiaryViewModel(private val repository: DiaryRepository) : ViewModel() {
 
-    private val _searchResults = MutableStateFlow<List<DiaryEntity>>(emptyList())
-    val searchResults: StateFlow<List<DiaryEntity>> = _searchResults
+    private val _diaryList = MutableStateFlow<List<DiaryEntity>>(emptyList())
+    val diaryList: StateFlow<List<DiaryEntity>> = _diaryList.asStateFlow()
 
-    fun searchDiary(keyword: String, sortType: SortType) {
+    init {
+        loadAllDiaries()
+    }
+
+    fun loadAllDiaries() {
         viewModelScope.launch {
-            val results = repository.searchDiary(keyword, sortType)
-            _searchResults.value = results
+            _diaryList.value = repository.getAllDiaries()
         }
+    }
+    suspend fun getDiary(id: Long): DiaryEntity? {
+        return repository.getDiary(id)
     }
 }
