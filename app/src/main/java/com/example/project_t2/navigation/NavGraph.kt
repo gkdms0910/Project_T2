@@ -5,16 +5,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.project_t2.models.DiaryCalendarScreen
+import androidx.navigation.navArgument
 import com.example.project_t2.roomDB.DiaryDatabase
 import com.example.project_t2.roomDB.DiaryRepository
 import com.example.project_t2.roomDB.DiaryViewModel
 import com.example.project_t2.roomDB.DiaryViewModelFactory
-import com.example.project_t2.screens.MainScreen
+import com.example.project_t2.screens.CalendarSearchScreen
 import com.example.project_t2.screens.DiaryScreen
-import com.example.project_t2.screens.SearchScreen
+import com.example.project_t2.screens.MainScreen
 import com.example.project_t2.screens.SettingScreen
 import com.example.project_t2.screens.StatScreen
 
@@ -28,15 +29,30 @@ fun AppNavGraph(navController: NavHostController) {
 
     NavHost(navController = navController, startDestination = "main") {
         composable("main") { MainScreen(Modifier, navController) }
-        composable("diary") {
+        composable(
+            route = "diary?date={date}",
+            arguments = listOf(navArgument("date") {
+                type = NavType.StringType
+                nullable = true
+            })
+        ) { backStackEntry ->
+            val dateString = backStackEntry.arguments?.getString("date")
             val diaryViewModel: DiaryViewModel = viewModel(factory = factory)
-            DiaryScreen(navController = navController, viewModel = diaryViewModel)
+            DiaryScreen(
+                navController = navController,
+                viewModel = diaryViewModel,
+                dateString = dateString
+            )
         }
-        composable("calendar") {
+
+        // 'calendar' 와 'search' 를 'calendar_search' 로 통합
+        composable("calendar_search") {
             val diaryViewModel: DiaryViewModel = viewModel(factory = factory)
-            DiaryCalendarScreen(navController = navController, viewModel = diaryViewModel)
+            CalendarSearchScreen(navController = navController, viewModel = diaryViewModel)
         }
-        composable("search") { SearchScreen(navController = navController) }
+
+        // 기존 composable("search") 와 composable("calendar")는 삭제
+
         composable("stats") { StatScreen(navController = navController) }
         composable("settings") { SettingScreen(navController = navController) }
     }

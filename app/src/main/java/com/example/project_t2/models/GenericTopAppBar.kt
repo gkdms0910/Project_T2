@@ -57,17 +57,10 @@ fun GenericTopAppBar(title: String, onNavigate: (String) -> Unit) {
                     }
                 )
                 DropdownMenuItem(
-                    text = { Text("캘린더") },
+                    text = { Text("캘린더/검색") },
                     onClick = {
                         menuExpanded = false
-                        onNavigate("calendar")
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text("검색") },
-                    onClick = {
-                        menuExpanded = false
-                        onNavigate("search")
+                        onNavigate("calendar_search")
                     }
                 )
                 DropdownMenuItem(
