@@ -1,5 +1,6 @@
 package com.example.project_t2.viewmodel.WSentiment
 
+import com.example.project_t2.models.Sentiments
 import com.example.project_t2.roomDB.WSentiment.WSentimentDatabase
 import com.example.project_t2.roomDB.WSentiment.WSentimentEntity
 import kotlinx.coroutines.flow.firstOrNull
@@ -23,7 +24,7 @@ class WSentimentRepository(private val db: WSentimentDatabase) {
             return
         }
 
-        if (lastItem.time != item.time) {
+        if (lastItem.time != item.time || lastItem.sentiment != Sentiments.NONE) {
             return
         }
 
