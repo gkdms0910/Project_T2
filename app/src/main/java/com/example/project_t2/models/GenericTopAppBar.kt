@@ -39,7 +39,7 @@ fun GenericTopAppBar(title: String, onNavigate: (String) -> Unit) {
         // Left part: Menu
         Box {
             Image(
-                painter = painterResource(id = R.drawable.outline_menu_24),
+                painter = painterResource(id = R.drawable.menu),
                 contentDescription = "Menu",
                 modifier = Modifier
                     .size(50.dp)

@@ -4,12 +4,14 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -43,25 +45,29 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeParseException
 
 private fun mapKobertToEmotion(kobertLabel: String): Emotion {
-    // KoBERT가 반환하는 레이블과 Enum의 displayName이 직접 일치하는지 확인
-    val directMatch = Emotion.values().find { it.displayName == kobertLabel }
-    if (directMatch != null) {
-        return directMatch
-    }
-
-    // 직접 일치하지 않을 경우, 예상되는 다른 레이블 값들로 매핑 시도
     return when (kobertLabel) {
-        "행복"-> Emotion.HAPPY
-        "화남" -> Emotion.ANGRY
+        "행복" -> Emotion.HAPPY
+        "미소" -> Emotion.JOY
         "슬픔" -> Emotion.SAD
-        "두려움"-> Emotion.FEAR
-        "중립" -> Emotion.TENDER //
-        "지루함" -> Emotion.BORED
-        "미소" -> Emotion.SMILE
-        "놀람" -> Emotion.FEAR //
-        else -> Emotion.SMILE //
+        "화남", "두려움", "지루함" -> Emotion.BAD
+        "중립" -> Emotion.TENDER
+        else -> Emotion.TENDER
     }
 }
+
+private fun mapDescriptionToWeather(description: String): Weathers {
+    return when {
+        "맑음" in description -> Weathers.SUNNY
+        "흐림" in description -> Weathers.CLOUDY
+        "구름" in description -> Weathers.PARTLY_CLOUDY
+        "비" in description -> Weathers.RAINY
+        "눈" in description -> Weathers.SNOWY
+        "소나기" in description -> Weathers.RAINY
+        "폭풍" in description -> Weathers.STORMY
+        else -> Weathers.SUNNY // 기본값
+    }
+}
+
 
 @Composable
 fun DiaryScreen(
@@ -107,16 +113,15 @@ fun DiaryScreen(
             selectedEmotion = existingDiary.emotion
             selectedWeather = existingDiary.weather
             diaryExists = true
-            isEditMode = false // 기존 일기는 항상 뷰 모드로 시작
+            isEditMode = false
         } else {
-            // 새 일기
             diaryId = null
             title = ""
             content = ""
-            selectedEmotion = null
+            selectedEmotion = Emotion.TENDER
             selectedWeather = null
             diaryExists = false
-            isEditMode = isToday // 오늘 날짜의 새 일기만 바로 편집 모드
+            isEditMode = isToday
         }
 
         if (isToday) {
@@ -128,32 +133,33 @@ fun DiaryScreen(
                     t1h = items.find { it.category == "T1H" }?.fcstValue?.toDoubleOrNull()
                     val currentWeatherData = WeatherData(sky, pty, t1h)
                     weatherDescription = WeatherAnalyzer.analyze(currentWeatherData)
+
+                    withContext(Dispatchers.Main) {
+                        selectedWeather = mapDescriptionToWeather(weatherDescription)
+                    }
+
                 } catch (e: Exception) {
                     weatherDescription = "날씨를 불러오지 못했어요."
                 }
             }
         } else {
-            // 과거 날짜의 날씨는 보여주지 않음
-            weatherDescription = "작성된 일기"
+            weatherDescription = if (diaryExists) "작성된 일기" else "지난 날짜"
         }
     }
 
-    // 내용이 변경될 때마다 디바운싱을 통해 감정 분석 실행
     LaunchedEffect(content) {
         if (content.isBlank() || !isEditMode) {
             return@LaunchedEffect
         }
 
-        delay(1000L) // 사용자가 1초간 입력을 멈추면 분석 시작
+        delay(1000L)
 
         isAnalyzingEmotion = true
         try {
             val kobertResponse = withContext(Dispatchers.IO) {
                 getKoBERTResponse(content)
             }
-            // API가 반환하는 실제 값을 확인하기 위해 로그 추가
             Log.d("EmotionAnalysis", "KoBERT API Response Label: '${kobertResponse.predicted_label}'")
-
             selectedEmotion = mapKobertToEmotion(kobertResponse.predicted_label)
         } catch (e: Exception) {
             Log.e("DiaryScreen", "Failed to analyze emotion", e)
@@ -163,7 +169,6 @@ fun DiaryScreen(
     }
 
 
-    // 오늘이 아닌데 일기가 없으면 작성 불가
     if (!isToday && !diaryExists) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("지난 날짜의 일기는 작성할 수 없습니다.")
@@ -198,14 +203,13 @@ fun DiaryScreen(
                             return@launch
                         }
 
-                        // ID가 있으면 업데이트, 없으면 삽입
                         val diary = DiaryEntity(
                             id = diaryId ?: 0,
                             title = title,
                             content = content,
                             emotion = selectedEmotion!!,
                             weather = selectedWeather!!,
-                            time = diaryDate.atTime(LocalDateTime.now().toLocalTime()) // 날짜는 유지, 시간은 현재
+                            time = diaryDate.atTime(LocalDateTime.now().toLocalTime())
                         )
 
                         if (diaryId != null) {
@@ -213,7 +217,15 @@ fun DiaryScreen(
                         } else {
                             viewModel.insertDiary(diary)
                         }
-                        navController.popBackStack()
+
+                        val savedDiary = viewModel.getDiaryByDate(diaryDate)
+                        if (savedDiary != null) {
+                            diaryId = savedDiary.id
+                            diaryExists = true
+                        }
+
+                        isEditMode = false
+                        Toast.makeText(context, "일기가 저장되었습니다.", Toast.LENGTH_SHORT).show()
                     }
                 }
             )
@@ -243,7 +255,6 @@ fun DiaryScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 감정 분석 중일 때 로딩 아이콘 표시
             if (isAnalyzingEmotion) {
                 CircularProgressIndicator(modifier = Modifier.size(50.dp))
             } else {
@@ -295,11 +306,16 @@ fun WeatherSelector(
         ) {
             Weathers.values().forEach { weather ->
                 val isSelected = weather == selectedWeather
+                // **수정사항: 선택 시 테두리와 배경색 변경**
+                val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+                val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f) else Color.Transparent
+
                 Box(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .background(if (isSelected) Color.LightGray.copy(alpha = 0.5f) else Color.Transparent)
+                        .border(width = 2.dp, color = borderColor, shape = CircleShape)
+                        .background(color = backgroundColor)
                         .clickable(enabled = isEditable) { onWeatherSelected(weather) },
                     contentAlignment = Alignment.Center
                 ) {
@@ -338,15 +354,24 @@ fun EmotionSelector(
     ) {
         Emotion.values().forEach { emotion ->
             val isSelected = emotion == selectedEmotion
+            // **수정사항: 선택 시 테두리와 배경색 변경**
+            val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+            val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f) else Color.Transparent
+
             Box(
                 modifier = Modifier
                     .size(50.dp)
                     .clip(CircleShape)
-                    .background(if (isSelected) Color.LightGray.copy(alpha = 0.5f) else Color.Transparent)
+                    .border(width = 2.dp, color = borderColor, shape = CircleShape)
+                    .background(color = backgroundColor)
                     .clickable(enabled = isEditable) { onEmotionSelected(emotion) },
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = emotion.emoji, fontSize = 32.sp)
+                Image(
+                    painter = painterResource(id = emotion.imageResId),
+                    contentDescription = emotion.displayName,
+                    modifier = Modifier.size(40.dp)
+                )
             }
         }
     }
@@ -372,7 +397,7 @@ fun DiaryTopAppBar(
     ) {
         Box {
             Image(
-                painter = painterResource(id = R.drawable.outline_menu_24),
+                painter = painterResource(id = R.drawable.menu),
                 contentDescription = "Menu",
                 modifier = Modifier
                     .size(50.dp)
@@ -407,9 +432,8 @@ fun DiaryTopAppBar(
         }
         Text("일기", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Box(modifier = Modifier.size(50.dp)) {
-            if (isToday) {
+            if (isToday || diaryExists) {
                 if (isEditMode) {
-                    // 편집 모드일 때 저장 버튼
                     Image(
                         painter = painterResource(id = R.drawable.outline_check_circle_24),
                         contentDescription = "Save",
@@ -417,8 +441,7 @@ fun DiaryTopAppBar(
                             .fillMaxSize()
                             .clickable { onSaveClick() }
                     )
-                } else if (diaryExists) {
-                    // 뷰 모드이고 오늘 일기가 존재할 때 수정 버튼
+                } else {
                     Image(
                         painter = painterResource(id = R.drawable.ic_edit),
                         contentDescription = "Edit",
@@ -428,7 +451,6 @@ fun DiaryTopAppBar(
                     )
                 }
             }
-            // 지난 날짜의 일기는 뷰 모드에서 아무 아이콘도 보이지 않음
         }
     }
 }

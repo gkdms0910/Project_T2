@@ -29,9 +29,10 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 
-fun convertDiaryToEmojiMap(diaryList: List<DiaryEntity>): Map<LocalDate, String> {
+// 수정된 부분: (날짜, 이미지 리소스 ID) 맵으로 변환
+fun convertDiaryToImageMap(diaryList: List<DiaryEntity>): Map<LocalDate, Int> {
     return diaryList.associate { diary ->
-        diary.time.toLocalDate() to diary.emotion.emoji
+        diary.time.toLocalDate() to diary.emotion.imageResId
     }
 }
 
@@ -41,10 +42,10 @@ fun CalendarWithMonthNavigation(
     onDateClick: (DiaryEntity) -> Unit
 ) {
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
-    val emojiMap = convertDiaryToEmojiMap(diaryList)
+    // 수정된 부분: 함수 호출 및 변수명 변경
+    val imageMap = convertDiaryToImageMap(diaryList)
 
     Column(modifier = Modifier.padding(16.dp)) {
-        // 상단 월 네비게이션
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -80,14 +81,14 @@ fun CalendarWithMonthNavigation(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        EmojiCalendar(
+        // 수정된 부분: DiaryCalendarGrid 호출 및 imageMap 전달
+        DiaryCalendarGrid(
             yearMonth = currentMonth,
-            emojiMap = emojiMap,
+            imageMap = imageMap,
             onDateClick = { clickedDate ->
                 val diary = diaryList.find { it.time.toLocalDate() == clickedDate }
-                diary?.let { onDateClick(it) } // ← 일기가 있을 때만 호출
+                diary?.let { onDateClick(it) }
             }
-
         )
     }
 }
@@ -97,11 +98,10 @@ fun CalendarWithMonthNavigation(
 fun CalendarNavigationPreview() {
     val previewList = listOf(
         DiaryEntity("제목", Weathers.SUNNY, Emotion.HAPPY, "내용", LocalDateTime.of(2025, 6, 5, 12, 0)),
-        DiaryEntity("제목2", Weathers.RAINY, Emotion.ANGRY, "내용2", LocalDateTime.of(2025, 6, 6, 18, 30))
+        DiaryEntity("제목2", Weathers.RAINY, Emotion.BAD, "내용2", LocalDateTime.of(2025, 6, 6, 18, 30))
     )
     CalendarWithMonthNavigation(
         diaryList = previewList,
         onDateClick = {}
     )
 }
-

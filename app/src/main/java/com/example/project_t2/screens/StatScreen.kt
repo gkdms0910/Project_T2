@@ -1,5 +1,6 @@
 package com.example.project_t2.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,7 +43,7 @@ fun StatScreen(navController: NavController, viewModel: StatViewModel) {
                 .padding(innerPadding)
                 .padding(16.dp)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()), // 내용이 길어질 수 있으므로 스크롤 추가
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             PeriodSelector(
@@ -176,8 +178,15 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                // 수정된 부분: Image와 Text로 감정 표시
+                Image(
+                    painter = painterResource(id = emotion.imageResId),
+                    contentDescription = emotion.displayName,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "${emotion.emoji} ${emotion.displayName}",
+                    text = emotion.displayName,
                     modifier = Modifier.width(80.dp),
                     fontSize = 16.sp
                 )
@@ -185,7 +194,6 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
                 ) {
-                    // 막대 그래프 바
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(percentage)
@@ -208,12 +216,12 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
 
 @Composable
 fun emotionToColor(emotion: Emotion): Color {
+    // 수정된 부분: 5가지 감정에 대한 색상 매핑
     return when (emotion) {
-        Emotion.HAPPY, Emotion.SMILE -> Color(0xFFFFC107)
-        Emotion.SAD -> Color(0xFF2196F3)
-        Emotion.ANGRY -> Color(0xFFF44336)
-        Emotion.FEAR -> Color(0xFF9C27B0)
-        Emotion.TENDER -> Color(0xFF4CAF50)
-        Emotion.BORED -> Color(0xFF9E9E9E)
+        Emotion.HAPPY -> Color(0xFFFFC107)
+        Emotion.JOY -> Color(0xFF81C784)
+        Emotion.TENDER-> Color(0xFFB0BEC5)
+        Emotion.SAD -> Color(0xFF64B5F6)
+        Emotion.BAD -> Color(0xFFE57373)
     }
 }
