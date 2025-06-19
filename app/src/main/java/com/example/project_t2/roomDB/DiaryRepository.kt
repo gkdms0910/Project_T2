@@ -2,12 +2,21 @@ package com.example.project_t2.roomDB
 
 import com.example.project_t2.graphics.Emotion
 import com.example.project_t2.models.Statistics.Period
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class DiaryRepository(private val dao: DiaryDao) {
 
     suspend fun insertDiary(diary: DiaryEntity) {
         dao.insertDiary(diary)
+    }
+
+    suspend fun updateDiary(diary: DiaryEntity) { // 수정 함수 추가
+        dao.updateDiary(diary)
+    }
+
+    suspend fun getDiaryByDate(date: LocalDate): DiaryEntity? { // 날짜로 조회하는 함수 추가
+        return dao.getDiaryByDate(date.toString())
     }
 
     suspend fun getDiary(id: Long): DiaryEntity? {
@@ -26,7 +35,7 @@ class DiaryRepository(private val dao: DiaryDao) {
     }
 
     // 7일 / 30일 / 6개월 / 1년 / 전체 기간 동안의 감정 통계
-    suspend fun getEmotionsStats(period: Period) : Map<Emotion, Float> {
+    suspend fun getEmotionsStats(period: Period): Map<Emotion, Float> {
         val from = when (period) {
             Period.WEEK -> LocalDateTime.now().minusWeeks(1)
             Period.MONTH -> LocalDateTime.now().minusMonths(1)

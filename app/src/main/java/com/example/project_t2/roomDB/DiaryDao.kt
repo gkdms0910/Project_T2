@@ -1,13 +1,17 @@
 package com.example.project_t2.roomDB
+
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface DiaryDao {
     @Insert
     suspend fun insertDiary(diary: DiaryEntity)
 
+    @Update
+    suspend fun updateDiary(diary: DiaryEntity)
     //앱 기능 상 삭제 기능은 없음
 
     @Query("SELECT * FROM diaryTable WHERE id = :id")
@@ -25,4 +29,7 @@ interface DiaryDao {
 
     @Query("SELECT * FROM diaryTable WHERE time >= :from")
     suspend fun getDiaryFromDate(from: String): List<DiaryEntity>
+
+    @Query("SELECT * FROM diaryTable WHERE date(time) = :date")
+    suspend fun getDiaryByDate(date: String): DiaryEntity?
 }

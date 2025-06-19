@@ -1,6 +1,7 @@
 package com.example.project_t2.graphics
 
 enum class Emotion(val displayName: String, val emoji: String, val unicode: String) {
+    SMILE("미소", "\uD83D\uDE42", "U+1F642"),    // 🙂
     ANGRY("화남", "\uD83D\uDE20", "U+1F620"),     // 😠
     FEAR("두려움", "\uD83D\uDE31", "U+1F631"),     // 😱
     HAPPY("행복", "\uD83D\uDE04", "U+1F604"),     // 😄

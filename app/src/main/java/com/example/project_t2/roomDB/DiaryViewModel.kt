@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class DiaryViewModel(private val repository: DiaryRepository) : ViewModel() {
 
@@ -23,5 +24,24 @@ class DiaryViewModel(private val repository: DiaryRepository) : ViewModel() {
     }
     suspend fun getDiary(id: Long): DiaryEntity? {
         return repository.getDiary(id)
+    }
+
+    // 날짜로 일기 조회
+    suspend fun getDiaryByDate(date: LocalDate): DiaryEntity? {
+        return repository.getDiaryByDate(date)
+    }
+
+    // 일기 추가
+    fun insertDiary(diary: DiaryEntity) {
+        viewModelScope.launch {
+            repository.insertDiary(diary)
+        }
+    }
+
+    // 일기 수정
+    fun updateDiary(diary: DiaryEntity) {
+        viewModelScope.launch {
+            repository.updateDiary(diary)
+        }
     }
 }

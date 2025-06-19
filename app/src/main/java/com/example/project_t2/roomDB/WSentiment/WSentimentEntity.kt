@@ -1,8 +1,8 @@
 package com.example.project_t2.roomDB.WSentiment
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.example.project_t2.models.Sentiments
-import com.example.project_t2.models.Weathers
 
 @Entity(tableName = "WSentimentTable")
 data class WSentimentEntity(
@@ -14,5 +14,5 @@ data class WSentimentEntity(
     var date: String,
     var time: Int = 0,
     var hours: Int = 0,
-    val id: Int = 0
+    @PrimaryKey(autoGenerate = true) val id: Int = 0
 )

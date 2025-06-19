@@ -1,9 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose.compiler)
     kotlin("plugin.serialization") version libs.versions.kotlin.get()
+    kotlin("kapt")
 }
 
 android {
@@ -53,7 +53,7 @@ android {
 }
 
 dependencies {
-
+    kapt("androidx.room:room-compiler:2.6.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -83,4 +83,5 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlin.stdlib)
+    kapt(libs.androidx.room.compiler)
 }
