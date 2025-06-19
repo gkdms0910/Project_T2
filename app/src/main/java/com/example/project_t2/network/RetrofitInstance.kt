@@ -1,9 +1,11 @@
-import com.example.project_T2.network.WeatherService
+package com.example.project_t2.network
+import com.example.project_t2.network.WeatherService
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.jvm.java
 
 object RetrofitInstance {
     private const val BASE_URL = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/"

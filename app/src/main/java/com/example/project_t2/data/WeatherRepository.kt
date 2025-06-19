@@ -1,6 +1,7 @@
-package com.example.Project_T2.data
+package com.example.project_t2.data
 
-import RetrofitInstance
+import com.example.project_t2.network.WeatherService
+import com.example.project_t2.network.RetrofitInstance
 
 class WeatherRepository {
     private val api = RetrofitInstance.service
@@ -25,4 +26,13 @@ class WeatherRepository {
             null
         }
     }
+}
+
+private fun WeatherService.getUltraSrtFcst(
+    serviceKey: String,
+    baseDate: String,
+    baseTime: String,
+    nx: Int,
+    ny: Int
+) {
 }

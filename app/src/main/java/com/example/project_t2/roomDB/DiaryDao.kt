@@ -1,28 +1,31 @@
 package com.example.project_t2.roomDB
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
+import java.time.LocalDateTime
 
 @Dao
 interface DiaryDao {
     @Insert
     suspend fun insertDiary(diary: DiaryEntity)
 
-    //앱 기능 상 삭제 기능은 없음
+    @Update
+    suspend fun updateDiary(diary: DiaryEntity)
 
     @Query("SELECT * FROM diaryTable WHERE id = :id")
-    suspend fun getDiary(id: Long): DiaryEntity?
+    suspend fun getDiary(id: Int): DiaryEntity?
 
     @Query("SELECT * FROM diaryTable")
     suspend fun getAllDiary(): List<DiaryEntity>
 
-    @Query("SELECT * FROM diaryTable WHERE title LIKE '%' || :keyword || '%' OR content LIKE '%' || :keyword || '%' ORDER BY time DESC")
-    suspend fun searchDiaryNewestFirst(keyword: String): List<DiaryEntity>
+    @Query("SELECT * FROM diaryTable WHERE time >= :startOfDay AND time < :endOfDay LIMIT 1")
+    suspend fun findDiaryForDate(startOfDay: LocalDateTime, endOfDay: LocalDateTime): DiaryEntity?
 
-    @Query("SELECT * FROM diaryTable WHERE title LIKE '%' || :keyword || '%' OR content LIKE '%' || :keyword || '%' ORDER BY time ASC")
-    suspend fun searchDiaryOldestFirst(keyword: String): List<DiaryEntity>
-    //fun getAllDiary():Flow<List<DiaryEntity>>
+    @Delete
+    suspend fun deleteDiary(diary: DiaryEntity)
 
-    @Query("SELECT * FROM diaryTable WHERE time >= :from")
-    suspend fun getDiaryFromDate(from: String): List<DiaryEntity>
+
 }
+
