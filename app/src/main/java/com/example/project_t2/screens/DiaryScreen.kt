@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -102,7 +104,7 @@ fun DiaryScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             DiaryTopAppBar(
-                onMenuClick = { /* TODO: 메뉴 클릭 */ },
+                onNavigate = { route -> navController.navigate(route) },
                 onSaveClick = {
                     coroutineScope.launch {
                         if (selectedWeather == null || selectedEmotion == null) {
@@ -183,7 +185,9 @@ fun DiaryScreen(
 }
 
 @Composable
-fun DiaryTopAppBar(onMenuClick: () -> Unit, onSaveClick: () -> Unit) {
+fun DiaryTopAppBar(onNavigate: (String) -> Unit, onSaveClick: () -> Unit) {
+    var menuExpanded by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -191,13 +195,48 @@ fun DiaryTopAppBar(onMenuClick: () -> Unit, onSaveClick: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.outline_menu_24),
-            contentDescription = "Menu",
-            modifier = Modifier
-                .size(50.dp)
-                .clickable { onMenuClick() }
-        )
+        Box {
+            Image(
+                painter = painterResource(id = R.drawable.outline_menu_24),
+                contentDescription = "Menu",
+                modifier = Modifier
+                    .size(50.dp)
+                    .clickable { menuExpanded = true }
+            )
+            DropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("캘린더") },
+                    onClick = {
+                        menuExpanded = false
+                        onNavigate("calendar")
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("검색") },
+                    onClick = {
+                        menuExpanded = false
+                        onNavigate("search")
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("통계") },
+                    onClick = {
+                        menuExpanded = false
+                        onNavigate("stats")
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("설정") },
+                    onClick = {
+                        menuExpanded = false
+                        onNavigate("settings")
+                    }
+                )
+            }
+        }
         Text("일기 작성", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Image(
             painter = painterResource(id = R.drawable.outline_check_circle_24),
@@ -283,4 +322,3 @@ fun EmotionSelector(selectedEmotion: Emotion?, onEmotionSelected: (Emotion) -> U
         }
     }
 }
-
