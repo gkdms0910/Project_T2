@@ -26,6 +26,26 @@ import com.example.project_t2.models.Sentiments
 import com.example.project_t2.models.Statistics.Period
 import com.example.project_t2.viewmodel.stats.StatViewModel
 
+// 데이터 클래스를 추가하여 UI에 필요한 정보를 구조화합니다.
+private data class PredictionUiModel(
+    val imageResId: Int?,
+    val message: String,
+    val emojiForNone: String? = null
+)
+
+// Sentiments enum을 새로운 UI 모델로 변환하는 함수입니다.
+@Composable
+private fun mapSentimentToUiModel(sentiment: Sentiments): PredictionUiModel {
+    return when (sentiment) {
+        Sentiments.HAPPY -> PredictionUiModel(Emotion.HAPPY.imageResId, "오늘은 '행복'한 하루가 될 것 같아요!")
+        Sentiments.TENDER -> PredictionUiModel(Emotion.TENDER.imageResId, "오늘은 '평온'한 하루가 될 것 같아요!")
+        Sentiments.SAD -> PredictionUiModel(Emotion.SAD.imageResId, "오늘은 '슬픈' 감정이 들 수 있어요. 힘내세요!")
+        Sentiments.ANGRY, Sentiments.FEAR -> PredictionUiModel(Emotion.BAD.imageResId, "오늘은 좋지 않은 일이 생길 수 있으니 마음을 다스려보세요.")
+        Sentiments.NONE -> PredictionUiModel(null, "데이터가 부족하여 예측할 수 없어요.", "🤔")
+    }
+}
+
+
 @Composable
 fun StatScreen(navController: NavController, viewModel: StatViewModel) {
     val selectedPeriod by viewModel.selectedPeriod.collectAsState()
@@ -102,30 +122,38 @@ fun SentimentPrediction(
             CircularProgressIndicator()
         } else {
             if (predictedSentiment != null) {
-                val (emoji, text, message) = sentimentToUiElements(predictedSentiment)
+                // 수정된 부분: 새로운 UI 모델을 사용합니다.
+                val uiModel = mapSentimentToUiModel(predictedSentiment)
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(emoji, fontSize = 64.sp)
+                    if (uiModel.imageResId != null) {
+                        // 수정된 부분: 이모지 대신 이미지를 표시합니다.
+                        Image(
+                            painter = painterResource(id = uiModel.imageResId),
+                            contentDescription = "Predicted Emotion",
+                            modifier = Modifier.size(80.dp)
+                        )
+                    } else {
+                        // '알 수 없음' 상태일 때만 이모지를 표시합니다.
+                        Text(uiModel.emojiForNone ?: "", fontSize = 64.sp)
+                    }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(message, style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = uiModel.message,
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center
+                    )
                 }
             } else {
-                Text("버튼을 눌러 오늘의 감정을 예측해보세요.")
+                Text(
+                    text = "버튼을 눌러 오늘의 감정을 예측해보세요.",
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
 }
 
-fun sentimentToUiElements(sentiment: Sentiments): Triple<String, String, String> {
-    return when (sentiment) {
-        Sentiments.HAPPY -> Triple("😄", "행복", "오늘은 '행복'한 하루가 될 것 같아요!")
-        Sentiments.TENDER -> Triple("😌", "평온", "오늘은 '평온'한 하루가 될 것 같아요!")
-        Sentiments.SAD -> Triple("😢", "슬픔", "오늘은 '슬픈' 감정이 들 수 있어요. 힘내세요!")
-        Sentiments.ANGRY -> Triple("😠", "화남", "오늘은 '화나는' 일이 생길 수 있으니 마음을 다스려보세요.")
-        Sentiments.FEAR -> Triple("😱", "두려움", "오늘은 '두려운' 일이 생길 수 있지만, 잘 해낼 수 있어요.")
-        Sentiments.NONE -> Triple("🤔", "알 수 없음", "데이터가 부족하여 예측할 수 없어요.")
-    }
-}
-
+// 기존의 sentimentToUiElements 함수는 삭제합니다.
 
 @Composable
 fun PeriodSelector(selectedPeriod: Period, onPeriodSelected: (Period) -> Unit) {
@@ -178,7 +206,6 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // 수정된 부분: Image와 Text로 감정 표시
                 Image(
                     painter = painterResource(id = emotion.imageResId),
                     contentDescription = emotion.displayName,
@@ -216,7 +243,6 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
 
 @Composable
 fun emotionToColor(emotion: Emotion): Color {
-    // 수정된 부분: 5가지 감정에 대한 색상 매핑
     return when (emotion) {
         Emotion.HAPPY -> Color(0xFFFFC107)
         Emotion.JOY -> Color(0xFF81C784)

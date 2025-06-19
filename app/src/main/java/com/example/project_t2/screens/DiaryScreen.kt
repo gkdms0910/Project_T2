@@ -435,7 +435,7 @@ fun DiaryTopAppBar(
             if (isToday || diaryExists) {
                 if (isEditMode) {
                     Image(
-                        painter = painterResource(id = R.drawable.outline_check_circle_24),
+                        painter = painterResource(id = R.drawable.outline_check_box_24),
                         contentDescription = "Save",
                         modifier = Modifier
                             .fillMaxSize()
