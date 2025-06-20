@@ -4,6 +4,8 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider // ViewModelProvider 임포트
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -24,6 +26,7 @@ import com.example.project_t2.screens.StatScreen
 import com.example.project_t2.ui.theme.AppFontSize
 import com.example.project_t2.viewmodel.ThemeViewModel
 import com.example.project_t2.viewmodel.WSentiment.WSentimentRepository
+import com.example.project_t2.viewmodel.WSentiment.WSentimentViewModel
 import com.example.project_t2.viewmodel.stats.StatViewModel
 import com.example.project_t2.viewmodel.stats.StatViewModelFactory
 
@@ -44,18 +47,30 @@ fun AppNavGraph(
     val wSentimentRepository = WSentimentRepository(wSentimentDb)
     val statViewModelFactory = StatViewModelFactory(diaryRepository, wSentimentRepository)
 
+    val wSentimentViewModel: WSentimentViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(WSentimentViewModel::class.java)) {
+                    @Suppress("UNCHECKED_CAST")
+                    return WSentimentViewModel(wSentimentRepository) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    )
+
     NavHost(navController = navController, startDestination = "main") {
         val slideIn = slideInHorizontally(initialOffsetX = { 1000 })
         val slideOut = slideOutHorizontally(targetOffsetX = { -1000 })
         val popSlideIn = slideInHorizontally(initialOffsetX = { -1000 })
-        val popSlideOut = slideOutHorizontally(targetOffsetX = { 1000 })
+        val popExitTransition = slideOutHorizontally(targetOffsetX = { 1000 })
 
         composable(
             route = "main",
             enterTransition = { slideIn },
             exitTransition = { slideOut },
             popEnterTransition = { popSlideIn },
-            popExitTransition = { popSlideOut }
+            popExitTransition = { popExitTransition }
         ) {
             MainScreen(navController = navController)
         }
@@ -69,13 +84,14 @@ fun AppNavGraph(
             enterTransition = { slideIn },
             exitTransition = { slideOut },
             popEnterTransition = { popSlideIn },
-            popExitTransition = { popSlideOut }
+            popExitTransition = { popExitTransition }
         ) { backStackEntry ->
             val dateString = backStackEntry.arguments?.getString("date")
             val diaryViewModel: DiaryViewModel = viewModel(factory = diaryViewModelFactory)
             DiaryScreen(
                 navController = navController,
                 viewModel = diaryViewModel,
+                wSentimentViewModel = wSentimentViewModel,
                 dateString = dateString
             )
         }
@@ -85,7 +101,7 @@ fun AppNavGraph(
             enterTransition = { slideIn },
             exitTransition = { slideOut },
             popEnterTransition = { popSlideIn },
-            popExitTransition = { popSlideOut }
+            popExitTransition = { popExitTransition }
         ) {
             val diaryViewModel: DiaryViewModel = viewModel(factory = diaryViewModelFactory)
             CalendarSearchScreen(navController = navController, viewModel = diaryViewModel)
@@ -96,7 +112,7 @@ fun AppNavGraph(
             enterTransition = { slideIn },
             exitTransition = { slideOut },
             popEnterTransition = { popSlideIn },
-            popExitTransition = { popSlideOut }
+            popExitTransition = { popExitTransition }
         ) {
             val statViewModel: StatViewModel = viewModel(factory = statViewModelFactory)
             StatScreen(navController = navController, viewModel = statViewModel)
@@ -107,7 +123,7 @@ fun AppNavGraph(
             enterTransition = { slideIn },
             exitTransition = { slideOut },
             popEnterTransition = { popSlideIn },
-            popExitTransition = { popSlideOut }
+            popExitTransition = { popExitTransition }
         ) {
             SettingScreen(
                 navController = navController,
