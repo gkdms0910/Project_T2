@@ -12,10 +12,16 @@ import kotlinx.coroutines.flow.Flow
 interface WSentimentDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun InsertItem(entity: WSentimentEntity)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(entities: List<WSentimentEntity>)
+
     @Update
     suspend fun UpdateItem(entity: WSentimentEntity)
+
     @Delete
     suspend fun DeleteItem(entity: WSentimentEntity)
+
     @Query("SELECT * FROM WSentimentTable")
     fun findAll(): Flow<List<WSentimentEntity>>
 }

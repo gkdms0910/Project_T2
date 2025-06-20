@@ -486,7 +486,7 @@ fun DiaryTopAppBar(
             }
         },
         actions = {
-            if (isToday || diaryExists) {
+            if (isToday) {
                 if (isEditMode) {
                     IconButton(onClick = onSaveClick) {
                         Image(

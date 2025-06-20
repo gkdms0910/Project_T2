@@ -10,9 +10,11 @@ interface DiaryDao {
     @Insert
     suspend fun insertDiary(diary: DiaryEntity)
 
+    @Insert
+    suspend fun insertAll(diaries: List<DiaryEntity>)
+
     @Update
     suspend fun updateDiary(diary: DiaryEntity)
-    //앱 기능 상 삭제 기능은 없음
 
     @Query("SELECT * FROM diaryTable WHERE id = :id")
     suspend fun getDiary(id: Long): DiaryEntity?
@@ -25,7 +27,6 @@ interface DiaryDao {
 
     @Query("SELECT * FROM diaryTable WHERE title LIKE '%' || :keyword || '%' OR content LIKE '%' || :keyword || '%' ORDER BY time ASC")
     suspend fun searchDiaryOldestFirst(keyword: String): List<DiaryEntity>
-    //fun getAllDiary():Flow<List<DiaryEntity>>
 
     @Query("SELECT * FROM diaryTable WHERE time >= :from")
     suspend fun getDiaryFromDate(from: String): List<DiaryEntity>
