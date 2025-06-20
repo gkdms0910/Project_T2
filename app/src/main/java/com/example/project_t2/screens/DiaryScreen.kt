@@ -30,11 +30,15 @@ import com.example.project_t2.data.GetWeather
 import com.example.project_t2.data.WeatherAnalyzer
 import com.example.project_t2.data.WeatherData
 import com.example.project_t2.graphics.Emotion
+import com.example.project_t2.models.Sentiments
 import com.example.project_t2.models.Weathers
 import com.example.project_t2.network.getKoBERTResponse
 import com.example.project_t2.roomDB.DiaryEntity
 import com.example.project_t2.roomDB.DiaryViewModel
+import com.example.project_t2.roomDB.WSentiment.WSentimentEntity
 import com.example.project_t2.ui.theme.MainFont
+import com.example.project_t2.utils.getWeatherParser
+import com.example.project_t2.viewmodel.WSentiment.WSentimentViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -89,6 +93,7 @@ private fun mapDescriptionToWeather(description: String): Weathers {
 fun DiaryScreen(
     navController: NavController,
     viewModel: DiaryViewModel,
+    wSentimentViewModel: WSentimentViewModel,
     dateString: String? = null,
     modifier: Modifier = Modifier
 ) {
@@ -231,6 +236,18 @@ fun DiaryScreen(
                         } else {
                             viewModel.insertDiary(diary)
                         }
+
+                        var wSentiment = getWeatherParser(GetWeather())
+                        wSentiment.sentiment = when(selectedEmotion) {
+                            Emotion.HAPPY -> Sentiments.HAPPY
+                            Emotion.TENDER -> Sentiments.TENDER
+                            Emotion.SAD -> Sentiments.SAD
+                            Emotion.ANGRY -> Sentiments.ANGRY
+                            Emotion.FEAR -> Sentiments.FEAR
+                            else -> Sentiments.TENDER
+                        }
+
+                        wSentimentViewModel.UpdateItem(wSentiment)
 
                         val savedDiary = viewModel.getDiaryByDate(diaryDate)
                         if (savedDiary != null) {
