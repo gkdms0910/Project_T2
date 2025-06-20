@@ -17,31 +17,40 @@ import com.example.project_t2.roomDB.DiaryEntity
 import com.example.project_t2.ui.theme.MainFont
 
 @Composable
-fun DiaryCard(diary: DiaryEntity, onClick: () -> Unit) {
+fun DiaryCard(
+    diary: DiaryEntity,
+    modifier: Modifier = Modifier, // modifier 파라미터 추가
+    onClick: () -> Unit
+) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 8.dp, horizontal = 16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = MaterialTheme.shapes.medium
+            .padding(vertical = 4.dp, horizontal = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = "제목: ${diary.title}", fontWeight = FontWeight.Bold, fontFamily = MainFont)
-            Text(text = "내용: ${diary.content}", maxLines = 1, fontFamily = MainFont)
-            Text(text = "날짜: ${diary.time.toLocalDate()}", fontFamily = MainFont)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "감정: ", fontFamily = MainFont)
-                Image(
-                    painter = painterResource(id = diary.emotion.imageResId),
-                    contentDescription = diary.emotion.displayName,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(text = "(${diary.emotion.displayName})", fontFamily = MainFont)
+            Text(text = "제목: ${diary.title}", fontWeight = FontWeight.Bold, fontFamily = MainFont, style = MaterialTheme.typography.titleMedium)
+            Text(text = "내용: ${diary.content}", maxLines = 2, fontFamily = MainFont, style = MaterialTheme.typography.bodyMedium)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "날짜: ${diary.time.toLocalDate()}", fontFamily = MainFont, style = MaterialTheme.typography.labelSmall)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "감정: ", fontFamily = MainFont, style = MaterialTheme.typography.labelSmall)
+                    Image(
+                        painter = painterResource(id = diary.emotion.imageResId),
+                        contentDescription = diary.emotion.displayName,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
     }

@@ -2,6 +2,8 @@ package com.example.project_t2.screens
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,7 +18,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -29,7 +30,6 @@ import com.example.project_t2.data.GetWeather
 import com.example.project_t2.data.WeatherAnalyzer
 import com.example.project_t2.data.WeatherData
 import com.example.project_t2.graphics.Emotion
-import com.example.project_t2.models.AppBackground
 import com.example.project_t2.models.Weathers
 import com.example.project_t2.network.getKoBERTResponse
 import com.example.project_t2.roomDB.DiaryEntity
@@ -43,7 +43,23 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeParseException
 
+
+private fun weatherToDisplayName(weather: Weathers): String {
+    return when (weather) {
+        Weathers.SUNNY -> "맑음"
+        Weathers.CLOUDY -> "흐림"
+        Weathers.PARTLY_CLOUDY -> "구름 조금"
+        Weathers.RAINY -> "비"
+        Weathers.SNOWY -> "눈"
+        Weathers.STORMY -> "폭풍"
+        Weathers.FOGGY -> "안개"
+        Weathers.WINDY -> "바람"
+        Weathers.HAZY -> "안개"
+    }
+}
+
 private fun mapKobertToEmotion(kobertLabel: String): Emotion {
+
     return when (kobertLabel) {
         "행복" -> Emotion.HAPPY
         "미소" -> Emotion.JOY
@@ -55,6 +71,7 @@ private fun mapKobertToEmotion(kobertLabel: String): Emotion {
 }
 
 private fun mapDescriptionToWeather(description: String): Weathers {
+
     return when {
         "맑음" in description -> Weathers.SUNNY
         "흐림" in description -> Weathers.CLOUDY
@@ -63,7 +80,7 @@ private fun mapDescriptionToWeather(description: String): Weathers {
         "눈" in description -> Weathers.SNOWY
         "소나기" in description -> Weathers.RAINY
         "폭풍" in description -> Weathers.STORMY
-        else -> Weathers.SUNNY // 기본값
+        else -> Weathers.SUNNY
     }
 }
 
@@ -80,10 +97,6 @@ fun DiaryScreen(
     var selectedEmotion by remember { mutableStateOf<Emotion?>(null) }
     var selectedWeather by remember { mutableStateOf<Weathers?>(null) }
     var weatherDescription by remember { mutableStateOf("날씨 정보 로딩 중...") }
-
-    var sky by remember { mutableStateOf<Int?>(null) }
-    var t1h by remember { mutableStateOf<Double?>(null) }
-    var pty by remember { mutableStateOf<Int?>(null) }
 
     var diaryId by remember { mutableStateOf<Int?>(null) }
     val context = LocalContext.current
@@ -124,27 +137,38 @@ fun DiaryScreen(
         }
 
         if (isToday) {
-            withContext(Dispatchers.IO) {
-                try {
-                    val items = GetWeather()
-                    sky = items.find { it.category == "SKY" }?.fcstValue?.toIntOrNull()
-                    pty = items.find { it.category == "PTY" }?.fcstValue?.toIntOrNull()
-                    t1h = items.find { it.category == "T1H" }?.fcstValue?.toDoubleOrNull()
-                    val currentWeatherData = WeatherData(sky, pty, t1h)
-                    weatherDescription = WeatherAnalyzer.analyze(currentWeatherData)
+            if (selectedWeather == null) {
+                withContext(Dispatchers.IO) {
+                    try {
+                        val items = GetWeather()
+                        val sky = items.find { it.category == "SKY" }?.fcstValue?.toIntOrNull()
+                        val pty = items.find { it.category == "PTY" }?.fcstValue?.toIntOrNull()
+                        val t1h = items.find { it.category == "T1H" }?.fcstValue?.toDoubleOrNull()
+                        val currentWeatherData = WeatherData(sky, pty, t1h)
 
-                    withContext(Dispatchers.Main) {
-                        selectedWeather = mapDescriptionToWeather(weatherDescription)
+                        withContext(Dispatchers.Main) {
+                            weatherDescription = WeatherAnalyzer.analyze(currentWeatherData)
+                            selectedWeather = mapDescriptionToWeather(weatherDescription)
+                        }
+
+                    } catch (e: Exception) {
+                        weatherDescription = "날씨를 불러오지 못했어요."
                     }
-
-                } catch (e: Exception) {
-                    weatherDescription = "날씨를 불러오지 못했어요."
                 }
+            } else {
+                weatherDescription = weatherToDisplayName(selectedWeather!!)
             }
         } else {
-            weatherDescription = if (diaryExists) "작성된 일기" else "지난 날짜"
+
+            if (diaryExists) {
+
+                weatherDescription = weatherToDisplayName(selectedWeather!!)
+            } else {
+                weatherDescription = "지난 날짜"
+            }
         }
     }
+
 
     LaunchedEffect(content) {
         if (content.isBlank() || !isEditMode) {
@@ -169,21 +193,14 @@ fun DiaryScreen(
 
 
     if (!isToday && !diaryExists) {
-        AppBackground {
-            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("지난 날짜의 일기는 작성할 수 없습니다.", fontFamily = MainFont)
-            }
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("지난 날짜의 일기는 작성할 수 없습니다.", fontFamily = MainFont)
         }
         return
     }
 
-    AppBackground {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+    Scaffold(
+        topBar = {
             DiaryTopAppBar(
                 onNavigate = { route -> navController.navigate(route) },
                 isEditMode = isEditMode,
@@ -223,6 +240,16 @@ fun DiaryScreen(
                     }
                 }
             )
+        },
+        containerColor = Color.Transparent
+    ){ innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -261,7 +288,6 @@ fun DiaryScreen(
                     isEditable = isEditMode
                 )
             }
-
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -309,8 +335,14 @@ fun WeatherSelector(
                 val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
                 val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else Color.Transparent
 
+                val scale by animateFloatAsState(
+                    targetValue = if (isSelected) 1.2f else 1.0f,
+                    label = "WeatherScaleAnim"
+                )
+
                 Box(
                     modifier = Modifier
+                        .scale(scale)
                         .size(48.dp)
                         .clip(CircleShape)
                         .border(width = 2.dp, color = borderColor, shape = CircleShape)
@@ -353,8 +385,17 @@ fun EmotionSelector(
     ) {
         Emotion.values().forEach { emotion ->
             val isSelected = emotion == selectedEmotion
-            val scale = if (isSelected) 1.2f else 1.0f
-            val alpha = if (isSelected) 1f else 0.6f
+
+            val scale by animateFloatAsState(
+                targetValue = if (isSelected) 1.2f else 1.0f,
+                animationSpec = tween(durationMillis = 200),
+                label = "EmotionScaleAnim"
+            )
+            val alpha by animateFloatAsState(
+                targetValue = if (isSelected) 1f else 0.6f,
+                animationSpec = tween(durationMillis = 200),
+                label = "EmotionAlphaAnim"
+            )
 
             Image(
                 painter = painterResource(id = emotion.imageResId),

@@ -1,5 +1,7 @@
 package com.example.project_t2.screens
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,8 +10,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,11 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.project_t2.graphics.Emotion
-import com.example.project_t2.models.AppBackground
 import com.example.project_t2.models.GenericTopAppBar
 import com.example.project_t2.models.Sentiments
 import com.example.project_t2.models.Statistics.Period
-import com.example.project_t2.ui.theme.MainFont
 import com.example.project_t2.viewmodel.stats.StatViewModel
 
 private data class PredictionUiModel(
@@ -53,59 +57,56 @@ fun StatScreen(navController: NavController, viewModel: StatViewModel) {
     val predictedSentiment by viewModel.predictedSentiment.collectAsState()
     val isPredicting by viewModel.isPredicting.collectAsState()
 
-    AppBackground {
-        Scaffold(
-            topBar = {
-                GenericTopAppBar(title = "통계 및 예측", onNavigate = { route -> navController.navigate(route) })
-            },
-            containerColor = Color.Transparent
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .padding(16.dp)
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                PeriodSelector(
-                    selectedPeriod = selectedPeriod,
-                    onPeriodSelected = { viewModel.setPeriod(it) }
-                )
+    Scaffold(
+        topBar = {
+            GenericTopAppBar(title = "통계 및 예측", onNavigate = { route -> navController.navigate(route) })
+        },
+        containerColor = Color.Transparent
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(16.dp)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            PeriodSelector(
+                selectedPeriod = selectedPeriod,
+                onPeriodSelected = { viewModel.setPeriod(it) }
+            )
 
-                Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-                if (emotionStats.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("해당 기간에 작성된 일기가 없습니다.", style = MaterialTheme.typography.bodyLarge)
-                    }
-                } else {
-                    EmotionBarChart(stats = emotionStats)
+            if (emotionStats.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("해당 기간에 작성된 일기가 없습니다.", style = MaterialTheme.typography.bodyLarge)
                 }
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp), color = Color.Gray.copy(alpha = 0.5f))
-
-                SentimentPrediction(
-                    isPredicting = isPredicting,
-                    predictedSentiment = predictedSentiment,
-                    onPredictClick = { viewModel.predictTodaysSentiment() }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // 추가된 설명 문구
-                Text(
-                    text = "※ 감정 예측은 과거의 날씨와 그날 기록된 감정 데이터를 기반으로 합니다.\n실제 감정과 다를 수 있으니 재미로 확인해주세요.",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center
-                )
+            } else {
+                EmotionBarChart(stats = emotionStats)
             }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp), color = Color.Gray.copy(alpha = 0.5f))
+
+            SentimentPrediction(
+                isPredicting = isPredicting,
+                predictedSentiment = predictedSentiment,
+                onPredictClick = { viewModel.predictTodaysSentiment() }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "※ 감정 예측은 과거의 날씨와 그날 기록된 감정 데이터를 기반으로 합니다.\n실제 감정과 다를 수 있으니 재미로 확인해주세요.",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
@@ -202,6 +203,14 @@ fun Period.toDisplayName(): String {
 
 @Composable
 fun EmotionBarChart(stats: Map<Emotion, Float>) {
+    var animationPlayed by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = stats) {
+        if (stats.isNotEmpty()) {
+            animationPlayed = true
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -210,7 +219,17 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
     ) {
         Text("감정 통계", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
-        stats.entries.sortedByDescending { it.value }.forEach { (emotion, percentage) ->
+        stats.entries.sortedByDescending { it.value }.forEachIndexed { index, (emotion, percentage) ->
+
+            val animatedPercentage by animateFloatAsState(
+                targetValue = if (animationPlayed) percentage else 0f,
+                label = "BarFillAnimation",
+                animationSpec = tween(
+                    durationMillis = 1000,
+                    delayMillis = index * 150
+                )
+            )
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -232,7 +251,7 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
                 ) {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth(percentage)
+                            .fillMaxWidth(animatedPercentage)
                             .height(24.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .background(emotionToColor(emotion))
@@ -253,10 +272,10 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
 @Composable
 fun emotionToColor(emotion: Emotion): Color {
     return when (emotion) {
-        Emotion.HAPPY -> Color(0xFFFBC02D) // Yellow
-        Emotion.JOY -> Color(0xFF66BB6A)   // Green
-        Emotion.TENDER -> Color(0xFFB0BEC5) // Blue Grey
-        Emotion.SAD -> Color(0xFF42A5F5)   // Blue
-        Emotion.BAD -> Color(0xFFEF5350)   // Red
+        Emotion.HAPPY -> MaterialTheme.colorScheme.primary
+        Emotion.JOY -> MaterialTheme.colorScheme.secondary
+        Emotion.SAD -> MaterialTheme.colorScheme.tertiary
+        Emotion.TENDER -> MaterialTheme.colorScheme.surfaceVariant
+        Emotion.BAD -> MaterialTheme.colorScheme.error
     }
 }
