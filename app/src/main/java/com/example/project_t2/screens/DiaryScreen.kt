@@ -61,11 +61,11 @@ private fun weatherToDisplayName(weather: Weathers): String {
 private fun mapKobertToEmotion(kobertLabel: String): Emotion {
 
     return when (kobertLabel) {
-        "행복" -> Emotion.HAPPY
-        "미소" -> Emotion.TENDER
-        "슬픔" -> Emotion.SAD
-        "화남", "두려움", "지루함" -> Emotion.ANGRY
-        "중립" -> Emotion.TENDER
+        "Happy" -> Emotion.HAPPY
+        "Tender" -> Emotion.TENDER
+        "Sad" -> Emotion.SAD
+        "Angry" -> Emotion.ANGRY
+        "Fear" -> Emotion.FEAR
         else -> Emotion.TENDER
     }
 }
