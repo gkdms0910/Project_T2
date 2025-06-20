@@ -44,7 +44,7 @@ private fun mapSentimentToUiModel(sentiment: Sentiments): PredictionUiModel {
         Sentiments.HAPPY -> PredictionUiModel(Emotion.HAPPY.imageResId, "오늘은 '행복'한 하루가 될 것 같아요!")
         Sentiments.TENDER -> PredictionUiModel(Emotion.TENDER.imageResId, "오늘은 '평온'한 하루가 될 것 같아요!")
         Sentiments.SAD -> PredictionUiModel(Emotion.SAD.imageResId, "오늘은 '슬픈' 감정이 들 수 있어요. 힘내세요!")
-        Sentiments.ANGRY, Sentiments.FEAR -> PredictionUiModel(Emotion.BAD.imageResId, "오늘은 좋지 않은 일이 생길 수 있으니 마음을 다스려보세요.")
+        Sentiments.ANGRY, Sentiments.FEAR -> PredictionUiModel(Emotion.ANGRY.imageResId, "오늘은 좋지 않은 일이 생길 수 있으니 마음을 다스려보세요.")
         Sentiments.NONE -> PredictionUiModel(null, "데이터가 부족하여 예측할 수 없어요.", "🤔")
     }
 }
@@ -273,9 +273,9 @@ fun EmotionBarChart(stats: Map<Emotion, Float>) {
 fun emotionToColor(emotion: Emotion): Color {
     return when (emotion) {
         Emotion.HAPPY -> MaterialTheme.colorScheme.primary
-        Emotion.JOY -> MaterialTheme.colorScheme.secondary
+        Emotion.TENDER -> MaterialTheme.colorScheme.secondary
         Emotion.SAD -> MaterialTheme.colorScheme.tertiary
-        Emotion.TENDER -> MaterialTheme.colorScheme.surfaceVariant
-        Emotion.BAD -> MaterialTheme.colorScheme.error
+        Emotion.FEAR -> MaterialTheme.colorScheme.surfaceVariant
+        Emotion.ANGRY -> MaterialTheme.colorScheme.error
     }
 }

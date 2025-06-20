@@ -138,7 +138,7 @@ fun CalendarPreview() {
         DiaryEntity(
             "제목2",
             Weathers.RAINY,
-            Emotion.BAD,
+            Emotion.ANGRY,
             "내용2",
             LocalDateTime.of(2025, 6, 6, 18, 30)
         )

@@ -62,9 +62,9 @@ private fun mapKobertToEmotion(kobertLabel: String): Emotion {
 
     return when (kobertLabel) {
         "행복" -> Emotion.HAPPY
-        "미소" -> Emotion.JOY
+        "미소" -> Emotion.TENDER
         "슬픔" -> Emotion.SAD
-        "화남", "두려움", "지루함" -> Emotion.BAD
+        "화남", "두려움", "지루함" -> Emotion.ANGRY
         "중립" -> Emotion.TENDER
         else -> Emotion.TENDER
     }
@@ -182,7 +182,10 @@ fun DiaryScreen(
             val kobertResponse = withContext(Dispatchers.IO) {
                 getKoBERTResponse(content)
             }
-            Log.d("EmotionAnalysis", "KoBERT API Response Label: '${kobertResponse.predicted_label}'")
+            Log.d(
+                "EmotionAnalysis",
+                "KoBERT API Response Label: '${kobertResponse.predicted_label}'"
+            )
             selectedEmotion = mapKobertToEmotion(kobertResponse.predicted_label)
         } catch (e: Exception) {
             Log.e("DiaryScreen", "Failed to analyze emotion", e)
@@ -242,7 +245,7 @@ fun DiaryScreen(
             )
         },
         containerColor = Color.Transparent
-    ){ innerPadding ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -324,7 +327,11 @@ fun WeatherSelector(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "날씨: $weatherDescription", fontWeight = FontWeight.SemiBold, fontFamily = MainFont)
+        Text(
+            text = "날씨: $weatherDescription",
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = MainFont
+        )
         Spacer(modifier = Modifier.height(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -332,8 +339,10 @@ fun WeatherSelector(
         ) {
             Weathers.values().forEach { weather ->
                 val isSelected = weather == selectedWeather
-                val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
-                val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else Color.Transparent
+                val borderColor =
+                    if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+                val backgroundColor =
+                    if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else Color.Transparent
 
                 val scale by animateFloatAsState(
                     targetValue = if (isSelected) 1.2f else 1.0f,

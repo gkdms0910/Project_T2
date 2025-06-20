@@ -95,7 +95,7 @@ fun CalendarWithMonthNavigation(
 fun CalendarNavigationPreview() {
     val previewList = listOf(
         DiaryEntity("제목", Weathers.SUNNY, Emotion.HAPPY, "내용", LocalDateTime.of(2025, 6, 5, 12, 0)),
-        DiaryEntity("제목2", Weathers.RAINY, Emotion.BAD, "내용2", LocalDateTime.of(2025, 6, 6, 18, 30))
+        DiaryEntity("제목2", Weathers.RAINY, Emotion.ANGRY, "내용2", LocalDateTime.of(2025, 6, 6, 18, 30))
     )
     CalendarWithMonthNavigation(
         diaryList = previewList,
